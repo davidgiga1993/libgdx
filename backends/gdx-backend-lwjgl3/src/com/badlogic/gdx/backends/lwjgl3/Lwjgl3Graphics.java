@@ -324,7 +324,6 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 
 	@Override
 	public boolean setFullscreenMode(DisplayMode displayMode) {
-		window.getInput().resetPollingStates();
 		Lwjgl3DisplayMode newMode = (Lwjgl3DisplayMode) displayMode;
 		if (isFullscreen()) {
 			Lwjgl3DisplayMode currentMode = (Lwjgl3DisplayMode) getDisplayMode();
@@ -356,7 +355,6 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 
 	@Override
 	public boolean setWindowedMode(int width, int height) {
-		window.getInput().resetPollingStates();
 		if (!isFullscreen()) {
 			GLFW.glfwSetWindowSize(window.getWindowHandle(), width, height);
 		} else {

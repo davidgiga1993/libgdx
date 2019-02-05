@@ -362,7 +362,7 @@ public class Lwjgl3Window implements Disposable {
 	
 	void windowHandleChanged(long windowHandle) {
 		this.windowHandle = windowHandle;
-		input.windowHandleChanged(windowHandle);
+		input.windowHandleChanged();
 	}
 
 	boolean update() {
@@ -378,9 +378,6 @@ public class Lwjgl3Window implements Disposable {
 		}
 		boolean shouldRender = executedRunnables.size > 0 || graphics.isContinuousRendering();
 		executedRunnables.clear();
-
-		if (!iconified)
-			input.update();
 		
 		synchronized (this) {
 			shouldRender |= requestRendering && !iconified;
@@ -392,9 +389,6 @@ public class Lwjgl3Window implements Disposable {
 			listener.render();
 			GLFW.glfwSwapBuffers(windowHandle);
 		}
-
-		if (!iconified)
-			input.prepareNext();
 
 		return shouldRender;
 	}
