@@ -24,9 +24,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Audio;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
@@ -38,7 +35,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
  * @author davebaol */
 public interface AndroidApplicationBase extends Application {
 
-	static final int MINIMUM_SDK = 8;
+	int MINIMUM_SDK = 8;
 
 	/** The application or activity context
 	 * 
@@ -65,9 +62,9 @@ public interface AndroidApplicationBase extends Application {
 	 * @param intent The {@link Intent} for starting an activity */
 	void startActivity (Intent intent);
 
-	/** Returns the {@link AndroidInput} object associated with this {@link AndroidApplicationBase}
+	/** Returns the {@link AndroidInputImpl} object associated with this {@link AndroidApplicationBase}
 	 * 
-	 * @return the {@link AndroidInput} object */
+	 * @return the {@link AndroidInputImpl} object */
 	@Override
 	AndroidInput getInput ();
 

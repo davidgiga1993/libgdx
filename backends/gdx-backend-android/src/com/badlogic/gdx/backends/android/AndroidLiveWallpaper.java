@@ -16,16 +16,12 @@
 
 package com.badlogic.gdx.backends.android;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -36,7 +32,6 @@ import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Preferences;
@@ -59,7 +54,7 @@ public class AndroidLiveWallpaper implements AndroidApplicationBase {
 	protected AndroidLiveWallpaperService service;
 
 	protected AndroidGraphicsLiveWallpaper graphics;
-	protected AndroidInput input;
+	protected AndroidInputImpl input;
 	protected AndroidAudio audio;
 	protected AndroidFiles files;
 	protected AndroidNet net;
@@ -85,9 +80,9 @@ public class AndroidLiveWallpaper implements AndroidApplicationBase {
 			: config.resolutionStrategy);
 
 		// factory in use, but note: AndroidInputFactory causes exceptions when obfuscated: java.lang.RuntimeException: Couldn't
-		// construct AndroidInput, this should never happen, proguard deletes constructor used only by reflection
+		// construct AndroidInputImpl, this should never happen, proguard deletes constructor used only by reflection
 		input = AndroidInputFactory.newAndroidInput(this, this.getService(), graphics.view, config);
-		// input = new AndroidInput(this, this.getService(), null, config);
+		// input = new AndroidInputImpl(this, this.getService(), null, config);
 
 		audio = new AndroidAudio(this.getService(), config);
 
@@ -222,7 +217,7 @@ public class AndroidLiveWallpaper implements AndroidApplicationBase {
 	}
 
 	@Override
-	public AndroidInput getInput () {
+	public AndroidInputImpl getInput () {
 		return input;
 	}
 

@@ -42,7 +42,7 @@ import android.widget.TextView;
 import com.badlogic.gdx.Input.Peripheral;
 
 /** Responsible for showing and hiding the Android onscreen keyboard (aka softkeyboard). Uses a dialog with an invisible TextView
- * and injects key down/up and typed events into AndroidInput. Only the delete and back keys will trigger key down/up events.
+ * and injects key down/up and typed events into AndroidInputImpl. Only the delete and back keys will trigger key down/up events.
  * Alphanumeric keys will be directly injected as key typed events which is sufficient to implement things like text fields.
  * 
  * Since the input mechanism for softkeyboards is a bit complex, we don't directly get key events from the softkeyboard. Instead
@@ -52,11 +52,11 @@ import com.badlogic.gdx.Input.Peripheral;
 class AndroidOnscreenKeyboard implements OnKeyListener, OnTouchListener {
 	final Context context;
 	final Handler handler;
-	final AndroidInput input;
+	final AndroidInputImpl input;
 	Dialog dialog;
 	TextView textView;
 
-	public AndroidOnscreenKeyboard (Context context, Handler handler, AndroidInput input) {
+	public AndroidOnscreenKeyboard (Context context, Handler handler, AndroidInputImpl input) {
 		this.context = context;
 		this.handler = handler;
 		this.input = input;
