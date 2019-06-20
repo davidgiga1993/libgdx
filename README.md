@@ -12,8 +12,7 @@ This causes (depending on the frame rate) unnecessary delays and increases the l
 In this fork all input events are directly passed to the listeners from the OS input thread.
 Therefore you need to make sure your application can properly handle inputs from a non rendering thread.
 
-### Sensors
-All sensor code is removed and the whole android input stack has been rewritten
+It is now also possible to change the input processing implementation from without your application - no need to rebuild libgdx.
 
 # Fixes
 ## Android 6.0 
@@ -24,3 +23,7 @@ This is taken care of in this fork.
 ## Android Multitouch 
 In libgdx are a couple of bugs in the input processing for android which causes three finger tapps not to be handled correctly.
 This has been fixed in this fork.
+
+# Removed
+The following things have been removed to make the framework a bit lighter and easier to maintain:
+- Android live wallpaper 
