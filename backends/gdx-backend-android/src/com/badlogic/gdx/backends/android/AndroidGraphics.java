@@ -62,7 +62,7 @@ public class AndroidGraphics implements Graphics, Renderer {
 
 	private static final String LOG_TAG = "AndroidGraphics";
 
-	/** When {@link AndroidFragmentApplication#onPause()} or {@link AndroidApplication#onPause()} call
+	/** When {@link AndroidApplication#onPause()} calls
 	 * {@link AndroidGraphics#pause()} they <b>MUST</b> enforce continuous rendering. If not, {@link #onDrawFrame(GL10)} will not
 	 * be called in the GLThread while {@link #pause()} is sleeping in the Android UI Thread which will cause the
 	 * {@link AndroidGraphics#pause} variable never be set to false. As a result, the {@link AndroidGraphics#pause()} method will
