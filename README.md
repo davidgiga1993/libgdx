@@ -16,8 +16,7 @@ It is now also possible to change the input processing implementation from witho
 
 # Fixes
 ## Android 6.0 
-A bug in proguard and android 6.0 causes crashes in code which can never crash.
-This is taken care of in this fork.
+A bug in proguard and android 6.0 causes crashes in code which is actually stable. This rare crash condition has been fixed.
 
 
 ## Android Multitouch 
