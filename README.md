@@ -1,81 +1,28 @@
-![logo](http://libgdx.badlogicgames.com/img/logo.png)
+# About
+This fork of libgdx is designed for building corss platform applications with relativly fast refresh rates (compared to a regular app).
 
-[![Jenkins build status](https://libgdx.badlogicgames.com/jenkins/buildStatus/icon?job=libgdx&.png)](https://libgdx.badlogicgames.com/jenkins/job/libgdx/) (Jenkins)
+It has quite a few hard design changes compared to the original libgdx which require more attention while developing but reward you with a super fast UI response.
 
-[![Travis build status](https://travis-ci.org/libgdx/libgdx.svg?branch=master)](https://travis-ci.org/libgdx/libgdx) (Travis)
 
-libGDX is a cross-platform Java game development framework based on 
-OpenGL (ES) that works on Windows, Linux, Mac OS X, Android, your
-WebGL enabled browser and iOS.
+# Changes
 
-### Getting Started
-  * [Setup your development environment (Eclipse, Intellij IDEA, NetBeans)](https://github.com/libgdx/libgdx/wiki/Setting-up-your-Development-Environment-%28Eclipse%2C-Intellij-IDEA%2C-NetBeans%29)
-  * [Create a libGDX project](https://github.com/libgdx/libgdx/wiki/Project-Setup-Gradle)
-    * Import, Run, Debug and Package your project
-      * [Eclipse](https://github.com/libgdx/libgdx/wiki/Gradle-and-Eclipse)
-      * [Intellij IDEA](https://github.com/libgdx/libgdx/wiki/Gradle-and-Intellij-IDEA)
-      * [NetBeans](https://github.com/libgdx/libgdx/wiki/Gradle-and-NetBeans)
-      * [Commandline](https://github.com/libgdx/libgdx/wiki/Gradle-on-the-Commandline)
-  * [Read the Wiki](https://github.com/libgdx/libgdx/wiki)
+## Input processing
+Input processing is done asynchronous. In the original libgdx each input event is queued up and processed by the rendering thread.
+This causes (depending on the frame rate) unnecessary delays and increases the latency of input processing.
+In this fork all input events are directly passed to the listeners from the OS input thread.
+Therefore you need to make sure your application can properly handle inputs from a non rendering thread.
 
-### Downloads
-As we switched to Gradle, there's no need to download libGDX itself anymore. For those of you who still prefer the old way of doing things, you can get libGDX from the [official download site](http://libgdx.badlogicgames.com/download.html).
+It is now also possible to change the input processing implementation from without your application - no need to rebuild libgdx.
 
-### Documentation
-The [Wiki](https://github.com/libgdx/libgdx/wiki) contains all the information you'll need to write a 
-libGDX game. You can contribute to the Wiki directly here on GitHub!
+# Fixes
+## Android 6.0 
+A bug in proguard and android 6.0 causes crashes in code which is actually stable. This rare crash condition has been fixed.
 
-We also provide [Javadocs](http://libgdx.badlogicgames.com/nightlies/docs/api/) online. The Javadocs are
-also bundled as source Jars with every libGDX distribution for consumption in your favorite IDE.
 
-### News & Community
-You can follow the latest news about libGDX on the [blog](http://www.badlogicgames.com). Follow
-[@badlogicgames](https://twitter.com/badlogicgames) for real-time updates.
+## Android Multitouch 
+In libgdx are a couple of bugs in the input processing for android which causes three finger tapps not to be handled correctly.
+This has been fixed in this fork.
 
-You can get help on our [forum](http://badlogicgames.com/forum/) and talk to other libGDX 
-users on our IRC channel #libgdx at irc.freenode.net.
-
-Another way of getting help or talking to other libGDX users is the [libgdx discord](https://discord.gg/6pgDK9F).
-
-### Reporting Issues
-Use the [issue tracker](https://github.com/libgdx/libgdx/issues?page=1&state=open) here on GitHub to report issues. Make sure you read the 
-[Getting Help](https://github.com/libgdx/libgdx/wiki/Getting-help) article that walks you through
-the process or properly reporting an issue.
-
-### Contributing & Working from Source
-libGDX has a strong developer community constantly improving the code base. We love to
-get any and all help we can. The [Contributing](https://github.com/libgdx/libgdx/wiki/Contributing) 
-article describes the process of helping libGDX to become even better.
-
-To contribute, you need to work with libGDX' sources directly, something normal users do not
-have to go through. The [Working with the Source](https://github.com/libgdx/libgdx/wiki/Running-demos-%26-tests)
-article will give you directions.
-
-You can also contribute financially to our infrastructure (build server, web server, test devices) via our [Patreon](http://patreon.com/libgdx)!
-
-### License
-libGDX is licensed under the [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0.html), meaning you
-can use it free of charge, without strings attached in commercial and non-commercial projects. We love to
-get (non-mandatory) credit in case you release a game or app using libgdx!
-
-### Supported By
-libGDX is supported by helpful 3rd parties via code contributions, free licenses, test devices and so forth. Make our supporters happy and visit their sites!
-
-<table>
-<tr>
-<td style="text-align: center;"><a href="https://github.com/MobiVM/robovm"><img style="margin-right:20px" src="http://libgdx.badlogicgames.com/img/robovm.png" alt="RoboVM" /></a></td>
-<td style="text-align: center;"><a href="http://bit.ly/spinegdx"><img src="http://libgdx.badlogicgames.com/img/spine.png"></a></td>
-</tr>
-
-<tr>
-<td style="text-align: center;"><a href="http://bit.ly/saikoagdx"><img style="margin-right:20px" src="http://libgdx.badlogicgames.com/img/saikoa.png" alt="Saikoa" /></a></td>
-<td style="text-align: center;"><a href="http://bit.ly/intelgdx"><img src="http://libgdx.badlogicgames.com/img/intel.png" alt="intel Software Partner" /></a></td>
-</tr>
-
-<tr>
-<td style="text-align: center;"><a href="http://bit.ly/jetblog"><img src="http://libgdx.badlogicgames.com/img/excelsior.png" alt="Excelsior JET"></a></td>
-<td style="text-align: center;"><a href="http://bit.ly/nextpeergdx"><img src="http://libgdx.badlogicgames.com/img/nextpeer.png"></a></td>
-</tr>
-</table>
-
-Intel and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
+# Removed
+The following things have been removed to make the framework a bit lighter and easier to maintain:
+- Android live wallpaper 
