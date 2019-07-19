@@ -35,7 +35,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
  * @author davebaol */
 public interface AndroidApplicationBase extends Application {
 
-	int MINIMUM_SDK = 8;
+	static final int MINIMUM_SDK = 9;
 
 	/** The application or activity context
 	 * 
@@ -62,9 +62,9 @@ public interface AndroidApplicationBase extends Application {
 	 * @param intent The {@link Intent} for starting an activity */
 	void startActivity (Intent intent);
 
-	/** Returns the {@link AndroidInputImpl} object associated with this {@link AndroidApplicationBase}
+	/** Returns the {@link AndroidInput} object associated with this {@link AndroidApplicationBase}
 	 * 
-	 * @return the {@link AndroidInputImpl} object */
+	 * @return the {@link AndroidInput} object */
 	@Override
 	AndroidInput getInput ();
 

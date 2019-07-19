@@ -48,7 +48,7 @@ public class Window extends Table {
 	Label titleLabel;
 	Table titleTable;
 	boolean drawTitleTable;
-	
+
 	protected int edge;
 	protected boolean dragging;
 
@@ -133,7 +133,7 @@ public class Window extends Table {
 				float minWidth = getMinWidth(), maxWidth = getMaxWidth();
 				float minHeight = getMinHeight(), maxHeight = getMaxHeight();
 				Stage stage = getStage();
-				boolean clampPosition = keepWithinStage && getParent() == stage.getRoot();
+				boolean clampPosition = keepWithinStage && stage != null && getParent() == stage.getRoot();
 
 				if ((edge & MOVE) != 0) {
 					float amountX = x - startX, amountY = y - startY;
@@ -207,9 +207,10 @@ public class Window extends Table {
 		return style;
 	}
 
-	void keepWithinStage () {
+	public void keepWithinStage () {
 		if (!keepWithinStage) return;
 		Stage stage = getStage();
+		if (stage == null) return;
 		Camera camera = stage.getCamera();
 		if (camera instanceof OrthographicCamera) {
 			OrthographicCamera orthographicCamera = (OrthographicCamera)camera;
@@ -235,7 +236,7 @@ public class Window extends Table {
 
 	public void draw (Batch batch, float parentAlpha) {
 		Stage stage = getStage();
-		if (stage.getKeyboardFocus() == null) stage.setKeyboardFocus(this);
+		if (stage != null && stage.getKeyboardFocus() == null) stage.setKeyboardFocus(this);
 
 		keepWithinStage();
 
@@ -269,6 +270,7 @@ public class Window extends Table {
 	}
 
 	public Actor hit (float x, float y, boolean touchable) {
+		if (!isVisible()) return null;
 		Actor hit = super.hit(x, y, touchable);
 		if (hit == null && isModal && (!touchable || getTouchable() == Touchable.enabled)) return this;
 		float height = getHeight();
