@@ -18,15 +18,9 @@ package com.badlogic.gdx.backends.lwjgl3;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration.HdpiMode;
+import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.utils.Disposable;
-
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWCharCallback;
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
+import org.lwjgl.glfw.*;
 
 /**
  * Async input processing
@@ -275,9 +269,24 @@ public class Lwjgl3Input implements Input, Disposable
 	}
 
 	@Override
+	public float getPressure () {
+		return getPressure(0);
+	}
+
+	@Override
+	public float getPressure (int pointer) {
+		return isTouched(pointer) ? 1 : 0;
+	}
+
+	@Override
 	public boolean isButtonPressed(int button)
 	{
 		return GLFW.glfwGetMouseButton(window.getWindowHandle(), button) == GLFW.GLFW_PRESS;
+	}
+
+	@Override
+	public boolean isButtonJustPressed(int button) {
+		return false;
 	}
 
 	@Override
@@ -833,6 +842,16 @@ public class Lwjgl3Input implements Input, Disposable
 	}
 
 	@Override
+	public void setCatchKey(int keycode, boolean catchKey) {
+
+	}
+
+	@Override
+	public boolean isCatchKey(int keycode) {
+		return false;
+	}
+
+	@Override
 	public float getAccelerometerX()
 	{
 		return 0;
@@ -927,5 +946,10 @@ public class Lwjgl3Input implements Input, Disposable
 	public float getGyroscopeZ()
 	{
 		return 0;
+	}
+
+	@Override
+	public int getMaxPointers() {
+		return 1;
 	}
 }
