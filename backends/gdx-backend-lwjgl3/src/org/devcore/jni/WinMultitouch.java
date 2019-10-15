@@ -30,7 +30,7 @@ public class WinMultitouch implements Disposable {
 	private native void dispose(long hwnd);
 
 	public WinMultitouch() {
-		System.load("WinMultitouch.dll");
+		System.loadLibrary("WinMultitouch");
 	}
 
 	@Override
