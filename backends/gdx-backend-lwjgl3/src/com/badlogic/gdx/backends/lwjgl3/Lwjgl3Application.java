@@ -62,10 +62,12 @@ public class Lwjgl3Application implements Application {
 				throw new GdxRuntimeException("Unable to initialize GLFW");
 			}
 		}
-		try {
-			multitouchInput = new WinMultitouch();
-		} catch (GdxRuntimeException e) {
-			// Using default touch detection
+		if (multitouchInput == null && SharedLibraryLoader.isWindows) {
+			try {
+				multitouchInput = new WinMultitouch();
+			} catch (GdxRuntimeException e) {
+				System.err.println("Multitouch input not available: " + e.getMessage());
+			}
 		}
 	}
 
