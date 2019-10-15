@@ -16,25 +16,18 @@
 
 package com.badlogic.gdx.backends.lwjgl3;
 
-import java.nio.IntBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWDropCallback;
-import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWWindowCloseCallback;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowIconifyCallback;
-import org.lwjgl.glfw.GLFWWindowMaximizeCallback;
-import org.lwjgl.glfw.GLFWWindowRefreshCallback;
-
 import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import org.devcore.jni.WinMultitouch;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.*;
+
+import java.nio.IntBuffer;
 
 public class Lwjgl3Window implements Disposable {
 	private long windowHandle;
@@ -160,9 +153,9 @@ public class Lwjgl3Window implements Disposable {
 		this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
 	}
 
-	void create(long windowHandle) {
+	void create(long windowHandle, WinMultitouch multitouchInput) {
 		this.windowHandle = windowHandle;
-		this.input = new Lwjgl3Input(this);
+		this.input = new Lwjgl3Input(this, multitouchInput);
 		this.graphics = new Lwjgl3Graphics(this);
 
 		GLFW.glfwSetWindowFocusCallback(windowHandle, focusCallback);
