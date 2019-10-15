@@ -19,6 +19,7 @@ package com.badlogic.gdx.backends.lwjgl3;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import org.devcore.jni.MultitouchProcessor;
 import org.devcore.jni.WinMultitouch;
@@ -172,8 +173,7 @@ public class Lwjgl3Input implements Input, Disposable {
 			GLFW.glfwSetMouseButtonCallback(window.getWindowHandle(), mouseButtonCallback);
 		} else {
 			multitouchInput.addWindow(window, new MultitouchProcessor() {
-
-				private boolean[] isDown = new boolean[10];
+				private Array<Integer> activePointers = new Array<>(10);
 
 				@Override
 				public void onTouch(int x, int y, int pointer, int mode, int button) {
@@ -184,34 +184,35 @@ public class Lwjgl3Input implements Input, Disposable {
 						y = (int) (y * yScale);
 					}
 
+					int pointerIndex = getPointerIndex(pointer);
 					switch (mode) {
 						case WinMultitouch.POINTER_DOWN:
-							inputProcessor.touchDown(x, y, pointer, button);
-							setDown(pointer, true);
+							inputProcessor.touchDown(x, y, activePointers.size, button);
+							activePointers.add(pointer);
 							break;
 						case WinMultitouch.POINTER_MOVE:
-							if (isDown(pointer))
-								inputProcessor.touchDragged(x, y, pointer);
-							else
-								inputProcessor.mouseMoved(x, y);
-							break;
+							if (pointerIndex != -1) {
+								inputProcessor.touchDragged(x, y, pointerIndex);
+								return;
+							}
+							inputProcessor.mouseMoved(x, y);
+							return;
 						case WinMultitouch.POINTER_UP:
-							inputProcessor.touchUp(x, y, pointer, button);
-							setDown(pointer, false);
+							inputProcessor.touchUp(x, y, pointerIndex, button);
+							if (pointerIndex < 0 || pointerIndex >= activePointers.size)
+								return;
+							activePointers.removeIndex(pointerIndex);
 							break;
 					}
 				}
 
-				private void setDown(int pointer, boolean state) {
-					if (pointer < 0 || pointer >= isDown.length)
-						return;
-					isDown[pointer] = state;
-				}
-
-				private boolean isDown(int pointer) {
-					if (pointer < 0 || pointer >= isDown.length)
-						return false;
-					return isDown[pointer];
+				private int getPointerIndex(int pointer) {
+					for (int X = 0; X < activePointers.size; X++) {
+						if (activePointers.get(X) == pointer) {
+							return X;
+						}
+					}
+					return -1;
 				}
 			});
 		}

@@ -3,6 +3,7 @@ package org.devcore.jni;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import org.lwjgl.glfw.GLFWNativeWin32;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class WinMultitouch implements Disposable {
 	private native void dispose(long hwnd);
 
 	public WinMultitouch() {
-		System.loadLibrary("WinMultitouch");
+		new SharedLibraryLoader().load("WinMultitouch");
 	}
 
 	@Override
@@ -57,8 +58,7 @@ public class WinMultitouch implements Disposable {
 
 	@SuppressWarnings("unused")
 	private void nativeOnTouchCallback(long hwnd, int x, int y, int pointer, int mode, int button) {
-		switch (button)
-		{
+		switch (button) {
 			case BUTTON_1:
 			default:
 				button = Input.Buttons.LEFT;
@@ -78,8 +78,9 @@ public class WinMultitouch implements Disposable {
 		}
 
 		MultitouchProcessor processor = callbacks.get(hwnd);
-		if (processor != null)
+		if (processor != null) {
 			processor.onTouch(x, y, pointer, mode, button);
+		}
 	}
 
 	private static long getHwid(Lwjgl3Window window) {

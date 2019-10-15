@@ -64,7 +64,7 @@ public class Lwjgl3Application implements Application {
 		}
 		try {
 			multitouchInput = new WinMultitouch();
-		} catch (UnsatisfiedLinkError e) {
+		} catch (GdxRuntimeException e) {
 			// Using default touch detection
 		}
 	}
