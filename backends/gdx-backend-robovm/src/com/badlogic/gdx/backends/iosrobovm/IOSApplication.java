@@ -16,42 +16,20 @@
 
 package com.badlogic.gdx.backends.iosrobovm;
 
-import java.io.File;
-
-import com.badlogic.gdx.ApplicationLogger;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.backends.iosrobovm.objectal.OALAudioSession;
+import com.badlogic.gdx.backends.iosrobovm.objectal.OALSimpleAudio;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Clipboard;
 import org.robovm.apple.coregraphics.CGRect;
-import org.robovm.apple.foundation.Foundation;
 import org.robovm.apple.foundation.NSMutableDictionary;
 import org.robovm.apple.foundation.NSObject;
 import org.robovm.apple.foundation.NSString;
 import org.robovm.apple.foundation.NSThread;
-import org.robovm.apple.uikit.UIApplication;
-import org.robovm.apple.uikit.UIApplicationDelegateAdapter;
-import org.robovm.apple.uikit.UIApplicationLaunchOptions;
-import org.robovm.apple.uikit.UIDevice;
-import org.robovm.apple.uikit.UIInterfaceOrientation;
-import org.robovm.apple.uikit.UIPasteboard;
-import org.robovm.apple.uikit.UIScreen;
-import org.robovm.apple.uikit.UIUserInterfaceIdiom;
-import org.robovm.apple.uikit.UIViewController;
-import org.robovm.apple.uikit.UIWindow;
+import org.robovm.apple.uikit.*;
 import org.robovm.rt.bro.Bro;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Audio;
-import com.badlogic.gdx.Files;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.LifecycleListener;
-import com.badlogic.gdx.Net;
-import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.backends.iosrobovm.objectal.OALAudioSession;
-import com.badlogic.gdx.backends.iosrobovm.objectal.OALSimpleAudio;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Clipboard;
+import java.io.File;
 
 public class IOSApplication implements Application {
 
@@ -209,43 +187,35 @@ public class IOSApplication implements Application {
 	 *
 	 * @return dimensions of space we draw to, adjusted for device orientation */
 	protected CGRect getBounds () {
-		final CGRect screenBounds = UIScreen.getMainScreen().getBounds();
-		final CGRect statusBarFrame = uiApp.getStatusBarFrame();
-		final UIInterfaceOrientation statusBarOrientation = uiApp.getStatusBarOrientation();
+		CGRect screenBounds = UIScreen.getMainScreen().getBounds();
+		UIWindow window = UIApplication.getSharedApplication().getKeyWindow();
+		if(window != null) {
+			screenBounds = window.getBounds();
+		}
 
+		final CGRect statusBarFrame = uiApp.getStatusBarFrame();
 		double statusBarHeight = Math.min(statusBarFrame.getWidth(), statusBarFrame.getHeight());
 
 		double screenWidth = screenBounds.getWidth();
 		double screenHeight = screenBounds.getHeight();
 
-		// Make sure that the orientation is consistent with ratios. Should be, but may not be on older iOS versions
-		switch (statusBarOrientation) {
-		case LandscapeLeft:
-		case LandscapeRight:
-			if (screenHeight > screenWidth) {
-				debug("IOSApplication", "Switching reported width and height (w=" + screenWidth + " h=" + screenHeight + ")");
-				double tmp = screenHeight;
-				// noinspection SuspiciousNameCombination
-				screenHeight = screenWidth;
-				screenWidth = tmp;
-			}
-		}
-
 		// update width/height depending on display scaling selected
 		screenWidth *= displayScaleFactor;
 		screenHeight *= displayScaleFactor;
 
-		if (statusBarHeight != 0.0) {
+		if (statusBarHeight != 0.0)	{
 			debug("IOSApplication", "Status bar is visible (height = " + statusBarHeight + ")");
 			statusBarHeight *= displayScaleFactor;
 			screenHeight -= statusBarHeight;
-		} else {
+		}
+		else {
 			debug("IOSApplication", "Status bar is not visible");
 		}
 
 		debug("IOSApplication", "Total computed bounds are w=" + screenWidth + " h=" + screenHeight);
 
 		return lastScreenBounds = new CGRect(0.0, statusBarHeight, screenWidth, screenHeight);
+
 	}
 
 	protected CGRect getCachedBounds () {
