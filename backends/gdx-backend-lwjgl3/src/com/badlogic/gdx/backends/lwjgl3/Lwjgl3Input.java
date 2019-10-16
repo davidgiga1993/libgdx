@@ -30,7 +30,7 @@ import org.lwjgl.glfw.*;
  */
 public class Lwjgl3Input implements Input, Disposable {
 	private final Lwjgl3Window window;
-	private final WinMultitouch multitouchInput;
+	private final LwjglWinMultitouch multitouchInput;
 	private InputProcessor inputProcessor;
 
 	private int mouseX, mouseY;
@@ -158,7 +158,7 @@ public class Lwjgl3Input implements Input, Disposable {
 		}
 	};
 
-	public Lwjgl3Input(Lwjgl3Window window, WinMultitouch multitouchInput) {
+	public Lwjgl3Input(Lwjgl3Window window, LwjglWinMultitouch multitouchInput) {
 		this.window = window;
 		this.multitouchInput = multitouchInput;
 		windowHandleChanged();

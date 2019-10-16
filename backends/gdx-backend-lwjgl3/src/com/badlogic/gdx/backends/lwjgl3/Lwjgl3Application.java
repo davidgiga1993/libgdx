@@ -21,7 +21,6 @@ import com.badlogic.gdx.backends.lwjgl3.audio.OpenALAudio;
 import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.utils.*;
-import org.devcore.jni.WinMultitouch;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -50,7 +49,7 @@ public class Lwjgl3Application implements Application {
 	private static GLFWErrorCallback errorCallback;
 	private static GLVersion glVersion;
 	private static Callback glDebugCallback;
-	public static WinMultitouch multitouchInput;
+	public static LwjglWinMultitouch multitouchInput;
 
 	static void initializeGlfw() {
 		if (errorCallback == null) {
@@ -64,7 +63,7 @@ public class Lwjgl3Application implements Application {
 		}
 		if (multitouchInput == null && SharedLibraryLoader.isWindows) {
 			try {
-				multitouchInput = new WinMultitouch();
+				multitouchInput = new LwjglWinMultitouch();
 			} catch (GdxRuntimeException e) {
 				System.err.println("Multitouch input not available: " + e.getMessage());
 			}

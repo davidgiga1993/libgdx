@@ -23,7 +23,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import org.devcore.jni.WinMultitouch;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 
@@ -153,7 +152,7 @@ public class Lwjgl3Window implements Disposable {
 		this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
 	}
 
-	void create(long windowHandle, WinMultitouch multitouchInput) {
+	void create(long windowHandle, LwjglWinMultitouch multitouchInput) {
 		this.windowHandle = windowHandle;
 		this.input = new Lwjgl3Input(this, multitouchInput);
 		this.graphics = new Lwjgl3Graphics(this);
