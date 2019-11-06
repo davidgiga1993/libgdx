@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.devcore.gdx</groupId>
     <artifactId>gdx-parent</artifactId>
-    <version>1.9.11-SNAPSHOT</version>
+    <version>1.9.11-A</version>
   </parent>
 
   <artifactId>gdx</artifactId>

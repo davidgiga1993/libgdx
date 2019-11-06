@@ -21,8 +21,8 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import org.devcore.jni.MultitouchProcessor;
-import org.devcore.jni.WinMultitouch;
+import org.devcore.win.Multitouch;
+import org.devcore.win.MultitouchProcessor;
 import org.lwjgl.glfw.*;
 
 /**
@@ -186,18 +186,18 @@ public class Lwjgl3Input implements Input, Disposable {
 
 					int pointerIndex = getPointerIndex(pointer);
 					switch (mode) {
-						case WinMultitouch.POINTER_DOWN:
+						case Multitouch.POINTER_DOWN:
 							inputProcessor.touchDown(x, y, activePointers.size, button);
 							activePointers.add(pointer);
 							break;
-						case WinMultitouch.POINTER_MOVE:
+						case Multitouch.POINTER_MOVE:
 							if (pointerIndex != -1) {
 								inputProcessor.touchDragged(x, y, pointerIndex);
 								return;
 							}
 							inputProcessor.mouseMoved(x, y);
 							return;
-						case WinMultitouch.POINTER_UP:
+						case Multitouch.POINTER_UP:
 							inputProcessor.touchUp(x, y, pointerIndex, button);
 							if (pointerIndex < 0 || pointerIndex >= activePointers.size)
 								return;
