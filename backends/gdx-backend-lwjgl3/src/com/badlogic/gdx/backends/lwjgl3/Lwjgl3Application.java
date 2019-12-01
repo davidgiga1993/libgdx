@@ -64,7 +64,7 @@ public class Lwjgl3Application implements Application {
 		if (multitouchInput == null && SharedLibraryLoader.isWindows) {
 			try {
 				multitouchInput = new LwjglWinMultitouch();
-			} catch (GdxRuntimeException e) {
+			} catch (GdxRuntimeException | UnsatisfiedLinkError e) {
 				System.err.println("Multitouch input not available: " + e.getMessage());
 			}
 		}

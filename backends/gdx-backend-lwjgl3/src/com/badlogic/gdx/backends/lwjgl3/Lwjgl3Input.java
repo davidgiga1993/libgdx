@@ -30,7 +30,7 @@ import org.lwjgl.glfw.*;
  */
 public class Lwjgl3Input implements Input, Disposable {
 	private final Lwjgl3Window window;
-	private final LwjglWinMultitouch multitouchInput;
+	private LwjglWinMultitouch multitouchInput;
 	private InputProcessor inputProcessor;
 
 	private int mouseX, mouseY;
@@ -169,53 +169,72 @@ public class Lwjgl3Input implements Input, Disposable {
 		GLFW.glfwSetCharCallback(window.getWindowHandle(), charCallback);
 		GLFW.glfwSetScrollCallback(window.getWindowHandle(), scrollCallback);
 		if (multitouchInput == null) {
-			GLFW.glfwSetCursorPosCallback(window.getWindowHandle(), cursorPosCallback);
-			GLFW.glfwSetMouseButtonCallback(window.getWindowHandle(), mouseButtonCallback);
-		} else {
-			multitouchInput.addWindow(window, new MultitouchProcessor() {
-				private Array<Integer> activePointers = new Array<>(10);
-
-				@Override
-				public void onTouch(int x, int y, int pointer, int mode, int button) {
-					if (window.getConfig().hdpiMode == HdpiMode.Pixels) {
-						float xScale = window.getGraphics().getBackBufferWidth() / (float) window.getGraphics().getLogicalWidth();
-						float yScale = window.getGraphics().getBackBufferHeight() / (float) window.getGraphics().getLogicalHeight();
-						x = (int) (x * xScale);
-						y = (int) (y * yScale);
-					}
-
-					int pointerIndex = getPointerIndex(pointer);
-					switch (mode) {
-						case Multitouch.POINTER_DOWN:
-							inputProcessor.touchDown(x, y, activePointers.size, button);
-							activePointers.add(pointer);
-							break;
-						case Multitouch.POINTER_MOVE:
-							if (pointerIndex != -1) {
-								inputProcessor.touchDragged(x, y, pointerIndex);
-								return;
-							}
-							inputProcessor.mouseMoved(x, y);
-							return;
-						case Multitouch.POINTER_UP:
-							inputProcessor.touchUp(x, y, pointerIndex, button);
-							if (pointerIndex < 0 || pointerIndex >= activePointers.size)
-								return;
-							activePointers.removeIndex(pointerIndex);
-							break;
-					}
-				}
-
-				private int getPointerIndex(int pointer) {
-					for (int X = 0; X < activePointers.size; X++) {
-						if (activePointers.get(X) == pointer) {
-							return X;
-						}
-					}
-					return -1;
-				}
-			});
+			registerLwjglTouchHandler();
+			return;
 		}
+
+		registerNativeTouchHandler();
+	}
+
+	private void registerNativeTouchHandler() {
+		MultitouchProcessor processor = new MultitouchProcessor() {
+			private Array<Integer> activePointers = new Array<>(10);
+
+			@Override
+			public void onTouch(int x, int y, int pointer, int mode, int button) {
+				if (window.getConfig().hdpiMode == HdpiMode.Pixels) {
+					float xScale = window.getGraphics().getBackBufferWidth() / (float) window.getGraphics().getLogicalWidth();
+					float yScale = window.getGraphics().getBackBufferHeight() / (float) window.getGraphics().getLogicalHeight();
+					x = (int) (x * xScale);
+					y = (int) (y * yScale);
+				}
+
+				int pointerIndex = getPointerIndex(pointer);
+				switch (mode) {
+						case Multitouch.POINTER_DOWN:
+						inputProcessor.touchDown(x, y, activePointers.size, button);
+						activePointers.add(pointer);
+						break;
+						case Multitouch.POINTER_MOVE:
+						if (pointerIndex != -1) {
+							inputProcessor.touchDragged(x, y, pointerIndex);
+							return;
+						}
+						inputProcessor.mouseMoved(x, y);
+						return;
+						case Multitouch.POINTER_UP:
+						inputProcessor.touchUp(x, y, pointerIndex, button);
+						if (pointerIndex < 0 || pointerIndex >= activePointers.size)
+							return;
+						activePointers.removeIndex(pointerIndex);
+						break;
+				}
+			}
+
+			private int getPointerIndex(int pointer) {
+				for (int X = 0; X < activePointers.size; X++) {
+					if (activePointers.get(X) == pointer) {
+						return X;
+					}
+				}
+				return -1;
+			}
+		};
+
+		try {
+			multitouchInput.addWindow(window, processor);
+		} catch (RuntimeException e) {
+			System.err.println("Could not register multitouch: " + e.getMessage());
+			// Fallback to lwjgl
+			multitouchInput.dispose();
+			multitouchInput = null;
+			registerLwjglTouchHandler();
+		}
+	}
+
+	private void registerLwjglTouchHandler() {
+		GLFW.glfwSetCursorPosCallback(window.getWindowHandle(), cursorPosCallback);
+		GLFW.glfwSetMouseButtonCallback(window.getWindowHandle(), mouseButtonCallback);
 	}
 
 	@Override
