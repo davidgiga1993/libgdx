@@ -32,6 +32,7 @@ import java.io.PrintStream;
 import java.nio.IntBuffer;
 
 public class Lwjgl3Application implements Application {
+	public static LwjglWinMultitouch multitouchInput;
 	private final Lwjgl3ApplicationConfiguration config;
 	private final Array<Lwjgl3Window> windows = new Array<Lwjgl3Window>();
 	private volatile Lwjgl3Window currentWindow;
@@ -49,7 +50,6 @@ public class Lwjgl3Application implements Application {
 	private static GLFWErrorCallback errorCallback;
 	private static GLVersion glVersion;
 	private static Callback glDebugCallback;
-	public static LwjglWinMultitouch multitouchInput;
 
 	static void initializeGlfw() {
 		if (errorCallback == null) {
@@ -64,7 +64,7 @@ public class Lwjgl3Application implements Application {
 		if (multitouchInput == null && SharedLibraryLoader.isWindows) {
 			try {
 				multitouchInput = new LwjglWinMultitouch();
-			} catch (GdxRuntimeException | UnsatisfiedLinkError e) {
+			} catch (UnsatisfiedLinkError | RuntimeException e) {
 				System.err.println("Multitouch input not available: " + e.getMessage());
 			}
 		}
