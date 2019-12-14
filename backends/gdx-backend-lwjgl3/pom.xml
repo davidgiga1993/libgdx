@@ -194,7 +194,7 @@
 		<dependency>
 			<groupId>org.devcore</groupId>
 			<artifactId>win-multitouch</artifactId>
-			<version>1.0</version>
+			<version>1.1</version>
 		</dependency>
 	</dependencies>
 
