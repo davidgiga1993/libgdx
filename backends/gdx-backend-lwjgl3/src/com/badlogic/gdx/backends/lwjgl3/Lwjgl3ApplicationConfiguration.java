@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,6 @@
  ******************************************************************************/
 
 package com.badlogic.gdx.backends.lwjgl3;
-
-import java.io.PrintStream;
-import java.nio.IntBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWVidMode.Buffer;
 
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Files;
@@ -36,11 +27,21 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics.Lwjgl3Monitor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWVidMode.Buffer;
+
+import java.io.PrintStream;
+import java.nio.IntBuffer;
 
 public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	boolean disableAudio = false;
 
-	/** The maximum number of threads to use for network requests. Default is {@link Integer#MAX_VALUE}. */
+	/**
+	 * The maximum number of threads to use for network requests. Default is {@link Integer#MAX_VALUE}.
+	 */
 	int maxNetThreads = Integer.MAX_VALUE;
 
 	int audioDeviceSimultaneousSources = 16;
@@ -65,14 +66,14 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 
 	boolean debug = false;
 	PrintStream debugStream = System.err;
-	
+
 	static Lwjgl3ApplicationConfiguration copy(Lwjgl3ApplicationConfiguration config) {
 		Lwjgl3ApplicationConfiguration copy = new Lwjgl3ApplicationConfiguration();
 		copy.set(config);
 		return copy;
 	}
-	
-	void set (Lwjgl3ApplicationConfiguration config){
+
+	void set(Lwjgl3ApplicationConfiguration config) {
 		super.setWindowConfiguration(config);
 		disableAudio = config.disableAudio;
 		audioDeviceSimultaneousSources = config.audioDeviceSimultaneousSources;
@@ -96,7 +97,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 		debug = config.debug;
 		debugStream = config.debugStream;
 	}
-	
+
 	/**
 	 * @param visibility whether the window will be visible on creation. (default true)
 	 */
@@ -122,14 +123,11 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 
 	/**
 	 * Sets the audio device configuration.
-	 * 
-	 * @param simultaniousSources
-	 *            the maximum number of sources that can be played
-	 *            simultaniously (default 16)
-	 * @param bufferSize
-	 *            the audio device buffer size in samples (default 512)
-	 * @param bufferCount
-	 *            the audio device buffer count (default 9)
+	 *
+	 * @param simultaniousSources the maximum number of sources that can be played
+	 *                            simultaniously (default 16)
+	 * @param bufferSize          the audio device buffer size in samples (default 512)
+	 * @param bufferCount         the audio device buffer count (default 9)
 	 */
 	public void setAudioConfig(int simultaniousSources, int bufferSize, int bufferCount) {
 		this.audioDeviceSimultaneousSources = simultaniousSources;
@@ -144,17 +142,13 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	 * respectively to be compatible with Mac OS X. Specifying major version 4
 	 * and minor version 2 will ensure that all OpenGL ES 3.0 features are
 	 * supported. Note however that Mac OS X does only support 3.2.
-	 * 
+	 *
+	 * @param useGL30           whether to use OpenGL ES 3.0
+	 * @param gles3MajorVersion OpenGL ES major version, use 3 as default
+	 * @param gles3MinorVersion OpenGL ES minor version, use 2 as default
 	 * @see <a href=
-	 *      "http://legacy.lwjgl.org/javadoc/org/lwjgl/opengl/ContextAttribs.html">
-	 *      LWJGL OSX ContextAttribs note</a>
-	 * 
-	 * @param useGL30
-	 *            whether to use OpenGL ES 3.0
-	 * @param gles3MajorVersion
-	 *            OpenGL ES major version, use 3 as default
-	 * @param gles3MinorVersion
-	 *            OpenGL ES minor version, use 2 as default
+	 * "http://legacy.lwjgl.org/javadoc/org/lwjgl/opengl/ContextAttribs.html">
+	 * LWJGL OSX ContextAttribs note</a>
 	 */
 	public void useOpenGL3(boolean useGL30, int gles3MajorVersion, int gles3MinorVersion) {
 		this.useGL30 = useGL30;
@@ -165,21 +159,14 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	/**
 	 * Sets the bit depth of the color, depth and stencil buffer as well as
 	 * multi-sampling.
-	 * 
-	 * @param r
-	 *            red bits (default 8)
-	 * @param g
-	 *            green bits (default 8)
-	 * @param b
-	 *            blue bits (default 8)
-	 * @param a
-	 *            alpha bits (default 8)
-	 * @param depth
-	 *            depth bits (default 16)
-	 * @param stencil
-	 *            stencil bits (default 0)
-	 * @param samples
-	 *            MSAA samples (default 0)
+	 *
+	 * @param r       red bits (default 8)
+	 * @param g       green bits (default 8)
+	 * @param b       blue bits (default 8)
+	 * @param a       alpha bits (default 8)
+	 * @param depth   depth bits (default 16)
+	 * @param stencil stencil bits (default 0)
+	 * @param samples MSAA samples (default 0)
 	 */
 	public void setBackBufferConfig(int r, int g, int b, int a, int depth, int stencil, int samples) {
 		this.r = r;
@@ -193,17 +180,20 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 
 	/**
 	 * Set transparent window hint
-	 * @deprecated Results may vary on different OS and GPUs. See https://github.com/glfw/glfw/issues/1237
+	 *
 	 * @param transparentFramebuffer
+	 * @deprecated Results may vary on different OS and GPUs. See https://github.com/glfw/glfw/issues/1237
 	 */
 	@Deprecated
-	public void setTransparentFramebuffer (boolean transparentFramebuffer) {
+	public void setTransparentFramebuffer(boolean transparentFramebuffer) {
 		this.transparentFramebuffer = transparentFramebuffer;
 	}
 
-	/**Sets the polling rate during idle time in non-continuous rendering mode. Must be positive.
-	 * Default is 60. */
-	public void setIdleFPS (int fps) {
+	/**
+	 * Sets the polling rate during idle time in non-continuous rendering mode. Must be positive.
+	 * Default is 60.
+	 */
+	public void setIdleFPS(int fps) {
 		this.idleFPS = fps;
 	}
 
@@ -238,9 +228,9 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	 * (since GL 4.3), this uses the KHR_debug, ARB_debug_output or AMD_debug_output extension
 	 * if available. By default, debug messages with NOTIFICATION severity are disabled to
 	 * avoid log spam.
-	 *
+	 * <p>
 	 * You can call with {@link System#err} to output to the "standard" error output stream.
-	 *
+	 * <p>
 	 * Use {@link Lwjgl3Application#setGLDebugMessageControl(Lwjgl3Application.GLDebugMessageSeverity, boolean)}
 	 * to enable or disable other severity debug levels.
 	 */
@@ -258,14 +248,14 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 		return new Lwjgl3Graphics.Lwjgl3DisplayMode(GLFW.glfwGetPrimaryMonitor(), videoMode.width(), videoMode.height(), videoMode.refreshRate(),
 				videoMode.redBits() + videoMode.greenBits() + videoMode.blueBits());
 	}
-	
+
 	/**
 	 * @return the currently active {@link DisplayMode} of the given monitor
 	 */
 	public static DisplayMode getDisplayMode(Monitor monitor) {
 		Lwjgl3Application.initializeGlfw();
-		GLFWVidMode videoMode = GLFW.glfwGetVideoMode(((Lwjgl3Monitor)monitor).monitorHandle);
-		return new Lwjgl3Graphics.Lwjgl3DisplayMode(((Lwjgl3Monitor)monitor).monitorHandle, videoMode.width(), videoMode.height(), videoMode.refreshRate(),
+		GLFWVidMode videoMode = GLFW.glfwGetVideoMode(((Lwjgl3Monitor) monitor).monitorHandle);
+		return new Lwjgl3Graphics.Lwjgl3DisplayMode(((Lwjgl3Monitor) monitor).monitorHandle, videoMode.width(), videoMode.height(), videoMode.refreshRate(),
 				videoMode.redBits() + videoMode.greenBits() + videoMode.blueBits());
 	}
 
@@ -273,7 +263,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	 * @return the available {@link DisplayMode}s of the primary monitor
 	 */
 	public static DisplayMode[] getDisplayModes() {
-		Lwjgl3Application.initializeGlfw(); 
+		Lwjgl3Application.initializeGlfw();
 		Buffer videoModes = GLFW.glfwGetVideoModes(GLFW.glfwGetPrimaryMonitor());
 		DisplayMode[] result = new DisplayMode[videoModes.limit()];
 		for (int i = 0; i < result.length; i++) {
@@ -289,11 +279,11 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	 */
 	public static DisplayMode[] getDisplayModes(Monitor monitor) {
 		Lwjgl3Application.initializeGlfw();
-		Buffer videoModes = GLFW.glfwGetVideoModes(((Lwjgl3Monitor)monitor).monitorHandle);
+		Buffer videoModes = GLFW.glfwGetVideoModes(((Lwjgl3Monitor) monitor).monitorHandle);
 		DisplayMode[] result = new DisplayMode[videoModes.limit()];
 		for (int i = 0; i < result.length; i++) {
 			GLFWVidMode videoMode = videoModes.get(i);
-			result[i] = new Lwjgl3Graphics.Lwjgl3DisplayMode(((Lwjgl3Monitor)monitor).monitorHandle, videoMode.width(), videoMode.height(),
+			result[i] = new Lwjgl3Graphics.Lwjgl3DisplayMode(((Lwjgl3Monitor) monitor).monitorHandle, videoMode.width(), videoMode.height(),
 					videoMode.refreshRate(), videoMode.redBits() + videoMode.greenBits() + videoMode.blueBits());
 		}
 		return result;

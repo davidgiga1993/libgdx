@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,49 +16,28 @@
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
 
-import static org.lwjgl.openal.AL10.AL_BUFFER;
-import static org.lwjgl.openal.AL10.AL_NO_ERROR;
-import static org.lwjgl.openal.AL10.AL_ORIENTATION;
-import static org.lwjgl.openal.AL10.AL_PAUSED;
-import static org.lwjgl.openal.AL10.AL_PLAYING;
-import static org.lwjgl.openal.AL10.AL_POSITION;
-import static org.lwjgl.openal.AL10.AL_SOURCE_STATE;
-import static org.lwjgl.openal.AL10.AL_STOPPED;
-import static org.lwjgl.openal.AL10.AL_VELOCITY;
-import static org.lwjgl.openal.AL10.alDeleteSources;
-import static org.lwjgl.openal.AL10.alGenSources;
-import static org.lwjgl.openal.AL10.alGetError;
-import static org.lwjgl.openal.AL10.alGetSourcei;
-import static org.lwjgl.openal.AL10.alListenerfv;
-import static org.lwjgl.openal.AL10.alSourcePause;
-import static org.lwjgl.openal.AL10.alSourcePlay;
-import static org.lwjgl.openal.AL10.alSourceStop;
-import static org.lwjgl.openal.AL10.alSourcei;
-import static org.lwjgl.openal.ALC10.*;
-
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL10;
-
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.audio.AudioRecorder;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntArray;
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.LongMap;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALCCapabilities;
 
-/** @author Nathan Sweet */
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.openal.ALC10.*;
+
+/**
+ * @author Nathan Sweet
+ */
 public class OpenALAudio implements Audio {
 	private final int deviceBufferSize;
 	private final int deviceBufferCount;
@@ -76,11 +55,11 @@ public class OpenALAudio implements Audio {
 	long context;
 	boolean noDevice = false;
 
-	public OpenALAudio () {
+	public OpenALAudio() {
 		this(16, 9, 512);
 	}
 
-	public OpenALAudio (int simultaneousSources, int deviceBufferCount, int deviceBufferSize) {
+	public OpenALAudio(int simultaneousSources, int deviceBufferCount, int deviceBufferSize) {
 		this.deviceBufferSize = deviceBufferSize;
 		this.deviceBufferCount = deviceBufferCount;
 
@@ -91,13 +70,13 @@ public class OpenALAudio implements Audio {
 		registerSound("mp3", Mp3.Sound.class);
 		registerMusic("mp3", Mp3.Music.class);
 
-		device = alcOpenDevice((ByteBuffer)null);
+		device = alcOpenDevice((ByteBuffer) null);
 		if (device == 0L) {
 			noDevice = true;
 			return;
 		}
 		ALCCapabilities deviceCapabilities = ALC.createCapabilities(device);
-		context = alcCreateContext(device, (IntBuffer)null);
+		context = alcCreateContext(device, (IntBuffer) null);
 		if (context == 0L) {
 			alcCloseDevice(device);
 			noDevice = true;
@@ -119,52 +98,52 @@ public class OpenALAudio implements Audio {
 		soundIdToSource = new LongMap<Integer>();
 		sourceToSoundId = new IntMap<Long>();
 
-		FloatBuffer orientation = (FloatBuffer)BufferUtils.createFloatBuffer(6)
-			.put(new float[] {0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f}).flip();
+		FloatBuffer orientation = (FloatBuffer) BufferUtils.createFloatBuffer(6)
+				.put(new float[]{0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f}).flip();
 		alListenerfv(AL_ORIENTATION, orientation);
-		FloatBuffer velocity = (FloatBuffer)BufferUtils.createFloatBuffer(3).put(new float[] {0.0f, 0.0f, 0.0f}).flip();
+		FloatBuffer velocity = (FloatBuffer) BufferUtils.createFloatBuffer(3).put(new float[]{0.0f, 0.0f, 0.0f}).flip();
 		alListenerfv(AL_VELOCITY, velocity);
-		FloatBuffer position = (FloatBuffer)BufferUtils.createFloatBuffer(3).put(new float[] {0.0f, 0.0f, 0.0f}).flip();
+		FloatBuffer position = (FloatBuffer) BufferUtils.createFloatBuffer(3).put(new float[]{0.0f, 0.0f, 0.0f}).flip();
 		alListenerfv(AL_POSITION, position);
 
 		recentSounds = new OpenALSound[simultaneousSources];
 	}
 
-	public void registerSound (String extension, Class<? extends OpenALSound> soundClass) {
+	public void registerSound(String extension, Class<? extends OpenALSound> soundClass) {
 		if (extension == null) throw new IllegalArgumentException("extension cannot be null.");
 		if (soundClass == null) throw new IllegalArgumentException("soundClass cannot be null.");
 		extensionToSoundClass.put(extension, soundClass);
 	}
 
-	public void registerMusic (String extension, Class<? extends OpenALMusic> musicClass) {
+	public void registerMusic(String extension, Class<? extends OpenALMusic> musicClass) {
 		if (extension == null) throw new IllegalArgumentException("extension cannot be null.");
 		if (musicClass == null) throw new IllegalArgumentException("musicClass cannot be null.");
 		extensionToMusicClass.put(extension, musicClass);
 	}
 
-	public OpenALSound newSound (FileHandle file) {
+	public OpenALSound newSound(FileHandle file) {
 		if (file == null) throw new IllegalArgumentException("file cannot be null.");
 		Class<? extends OpenALSound> soundClass = extensionToSoundClass.get(file.extension().toLowerCase());
 		if (soundClass == null) throw new GdxRuntimeException("Unknown file extension for sound: " + file);
 		try {
-			return soundClass.getConstructor(new Class[] {OpenALAudio.class, FileHandle.class}).newInstance(this, file);
+			return soundClass.getConstructor(new Class[]{OpenALAudio.class, FileHandle.class}).newInstance(this, file);
 		} catch (Exception ex) {
 			throw new GdxRuntimeException("Error creating sound " + soundClass.getName() + " for file: " + file, ex);
 		}
 	}
 
-	public OpenALMusic newMusic (FileHandle file) {
+	public OpenALMusic newMusic(FileHandle file) {
 		if (file == null) throw new IllegalArgumentException("file cannot be null.");
 		Class<? extends OpenALMusic> musicClass = extensionToMusicClass.get(file.extension().toLowerCase());
 		if (musicClass == null) throw new GdxRuntimeException("Unknown file extension for music: " + file);
 		try {
-			return musicClass.getConstructor(new Class[] {OpenALAudio.class, FileHandle.class}).newInstance(this, file);
+			return musicClass.getConstructor(new Class[]{OpenALAudio.class, FileHandle.class}).newInstance(this, file);
 		} catch (Exception ex) {
 			throw new GdxRuntimeException("Error creating music " + musicClass.getName() + " for file: " + file, ex);
 		}
 	}
 
-	int obtainSource (boolean isMusic) {
+	int obtainSource(boolean isMusic) {
 		if (noDevice) return 0;
 		for (int i = 0, n = idleSources.size; i < n; i++) {
 			int sourceId = idleSources.get(i);
@@ -191,7 +170,7 @@ public class OpenALAudio implements Audio {
 		return -1;
 	}
 
-	void freeSource (int sourceID) {
+	void freeSource(int sourceID) {
 		if (noDevice) return;
 		alSourceStop(sourceID);
 		alSourcei(sourceID, AL_BUFFER, 0);
@@ -200,7 +179,7 @@ public class OpenALAudio implements Audio {
 		idleSources.add(sourceID);
 	}
 
-	void freeBuffer (int bufferID) {
+	void freeBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size; i < n; i++) {
 			int sourceID = idleSources.get(i);
@@ -213,7 +192,7 @@ public class OpenALAudio implements Audio {
 		}
 	}
 
-	void stopSourcesWithBuffer (int bufferID) {
+	void stopSourcesWithBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size; i < n; i++) {
 			int sourceID = idleSources.get(i);
@@ -225,7 +204,7 @@ public class OpenALAudio implements Audio {
 		}
 	}
 
-	void pauseSourcesWithBuffer (int bufferID) {
+	void pauseSourcesWithBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size; i < n; i++) {
 			int sourceID = idleSources.get(i);
@@ -233,7 +212,7 @@ public class OpenALAudio implements Audio {
 		}
 	}
 
-	void resumeSourcesWithBuffer (int bufferID) {
+	void resumeSourcesWithBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size; i < n; i++) {
 			int sourceID = idleSources.get(i);
@@ -243,62 +222,62 @@ public class OpenALAudio implements Audio {
 		}
 	}
 
-	public void update () {
+	public void update() {
 		if (noDevice) return;
 		for (int i = 0; i < music.size; i++)
 			music.items[i].update();
 	}
 
-	public long getSoundId (int sourceId) {
+	public long getSoundId(int sourceId) {
 		Long soundId = sourceToSoundId.get(sourceId);
 		return soundId != null ? soundId : -1;
 	}
 
-	public int getSourceId (long soundId) {
+	public int getSourceId(long soundId) {
 		Integer sourceId = soundIdToSource.get(soundId);
 		return sourceId != null ? sourceId : -1;
 	}
 
-	public void stopSound (long soundId) {
+	public void stopSound(long soundId) {
 		Integer sourceId = soundIdToSource.get(soundId);
 		if (sourceId != null) alSourceStop(sourceId);
 	}
 
-	public void pauseSound (long soundId) {
+	public void pauseSound(long soundId) {
 		Integer sourceId = soundIdToSource.get(soundId);
 		if (sourceId != null) alSourcePause(sourceId);
 	}
 
-	public void resumeSound (long soundId) {
+	public void resumeSound(long soundId) {
 		int sourceId = soundIdToSource.get(soundId, -1);
 		if (sourceId != -1 && alGetSourcei(sourceId, AL_SOURCE_STATE) == AL_PAUSED) alSourcePlay(sourceId);
 	}
 
-	public void setSoundGain (long soundId, float volume) {
+	public void setSoundGain(long soundId, float volume) {
 		Integer sourceId = soundIdToSource.get(soundId);
 		if (sourceId != null) AL10.alSourcef(sourceId, AL10.AL_GAIN, volume);
 	}
 
-	public void setSoundLooping (long soundId, boolean looping) {
+	public void setSoundLooping(long soundId, boolean looping) {
 		Integer sourceId = soundIdToSource.get(soundId);
 		if (sourceId != null) alSourcei(sourceId, AL10.AL_LOOPING, looping ? AL10.AL_TRUE : AL10.AL_FALSE);
 	}
 
-	public void setSoundPitch (long soundId, float pitch) {
+	public void setSoundPitch(long soundId, float pitch) {
 		Integer sourceId = soundIdToSource.get(soundId);
 		if (sourceId != null) AL10.alSourcef(sourceId, AL10.AL_PITCH, pitch);
 	}
 
-	public void setSoundPan (long soundId, float pan, float volume) {
+	public void setSoundPan(long soundId, float pan, float volume) {
 		int sourceId = soundIdToSource.get(soundId, -1);
 		if (sourceId != -1) {
 			AL10.alSource3f(sourceId, AL10.AL_POSITION, MathUtils.cos((pan - 1) * MathUtils.PI / 2), 0,
-				MathUtils.sin((pan + 1) * MathUtils.PI / 2));
+					MathUtils.sin((pan + 1) * MathUtils.PI / 2));
 			AL10.alSourcef(sourceId, AL10.AL_GAIN, volume);
 		}
 	}
 
-	public void dispose () {
+	public void dispose() {
 		if (noDevice) return;
 		for (int i = 0, n = allSources.size; i < n; i++) {
 			int sourceID = allSources.get(i);
@@ -314,53 +293,55 @@ public class OpenALAudio implements Audio {
 		alcCloseDevice(device);
 	}
 
-	public AudioDevice newAudioDevice (int sampleRate, final boolean isMono) {
+	public AudioDevice newAudioDevice(int sampleRate, final boolean isMono) {
 		if (noDevice) return new AudioDevice() {
 			@Override
-			public void writeSamples (float[] samples, int offset, int numSamples) {
+			public void writeSamples(float[] samples, int offset, int numSamples) {
 			}
 
 			@Override
-			public void writeSamples (short[] samples, int offset, int numSamples) {
+			public void writeSamples(short[] samples, int offset, int numSamples) {
 			}
 
 			@Override
-			public void setVolume (float volume) {
+			public void setVolume(float volume) {
 			}
 
 			@Override
-			public boolean isMono () {
+			public boolean isMono() {
 				return isMono;
 			}
 
 			@Override
-			public int getLatency () {
+			public int getLatency() {
 				return 0;
 			}
 
 			@Override
-			public void dispose () {
+			public void dispose() {
 			}
 		};
 		return new OpenALAudioDevice(this, sampleRate, isMono, deviceBufferSize, deviceBufferCount);
 	}
 
-	public AudioRecorder newAudioRecorder (int samplingRate, boolean isMono) {
+	public AudioRecorder newAudioRecorder(int samplingRate, boolean isMono) {
 		if (noDevice) return new AudioRecorder() {
 			@Override
-			public void read (short[] samples, int offset, int numSamples) {
+			public void read(short[] samples, int offset, int numSamples) {
 			}
 
 			@Override
-			public void dispose () {
+			public void dispose() {
 			}
 		};
 		return new JavaSoundAudioRecorder(samplingRate, isMono);
 	}
 
-	/** Retains a list of the most recently played sounds and stops the sound played least recently if necessary for a new sound to
-	 * play */
-	protected void retain (OpenALSound sound, boolean stop) {
+	/**
+	 * Retains a list of the most recently played sounds and stops the sound played least recently if necessary for a new sound to
+	 * play
+	 */
+	protected void retain(OpenALSound sound, boolean stop) {
 		// Move the pointer ahead and wrap
 		mostRecetSound++;
 		mostRecetSound %= recentSounds.length;
@@ -373,8 +354,10 @@ public class OpenALAudio implements Audio {
 		recentSounds[mostRecetSound] = sound;
 	}
 
-	/** Removes the disposed sound from the least recently played list */
-	public void forget (OpenALSound sound) {
+	/**
+	 * Removes the disposed sound from the least recently played list
+	 */
+	public void forget(OpenALSound sound) {
 		for (int i = 0; i < recentSounds.length; i++) {
 			if (recentSounds[i] == sound) recentSounds[i] = null;
 		}

@@ -191,18 +191,18 @@ public class Lwjgl3Input implements Input, Disposable {
 
 				int pointerIndex = getPointerIndex(pointer);
 				switch (mode) {
-						case Multitouch.POINTER_DOWN:
+					case Multitouch.POINTER_DOWN:
 						inputProcessor.touchDown(x, y, activePointers.size, button);
 						activePointers.add(pointer);
 						break;
-						case Multitouch.POINTER_MOVE:
+					case Multitouch.POINTER_MOVE:
 						if (pointerIndex != -1) {
 							inputProcessor.touchDragged(x, y, pointerIndex);
 							return;
 						}
 						inputProcessor.mouseMoved(x, y);
 						return;
-						case Multitouch.POINTER_UP:
+					case Multitouch.POINTER_UP:
 						inputProcessor.touchUp(x, y, pointerIndex, button);
 						if (pointerIndex < 0 || pointerIndex >= activePointers.size)
 							return;

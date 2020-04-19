@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,26 +16,26 @@
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
 
-import java.io.EOFException;
-import java.io.FilterInputStream;
-import java.io.IOException;
-
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StreamUtils;
+
+import java.io.EOFException;
+import java.io.FilterInputStream;
+import java.io.IOException;
 
 public class Wav {
 	static public class Music extends OpenALMusic {
 		private WavInputStream input;
 
-		public Music (OpenALAudio audio, FileHandle file) {
+		public Music(OpenALAudio audio, FileHandle file) {
 			super(audio, file);
 			input = new WavInputStream(file);
 			if (audio.noDevice) return;
 			setup(input.channels, input.sampleRate);
 		}
 
-		public int read (byte[] buffer) {
+		public int read(byte[] buffer) {
 			if (input == null) {
 				input = new WavInputStream(file);
 				setup(input.channels, input.sampleRate);
@@ -47,14 +47,14 @@ public class Wav {
 			}
 		}
 
-		public void reset () {
+		public void reset() {
 			StreamUtils.closeQuietly(input);
 			input = null;
 		}
 	}
 
 	static public class Sound extends OpenALSound {
-		public Sound (OpenALAudio audio, FileHandle file) {
+		public Sound(OpenALAudio audio, FileHandle file) {
 			super(audio);
 			if (audio.noDevice) return;
 
@@ -70,11 +70,13 @@ public class Wav {
 		}
 	}
 
-	/** @author Nathan Sweet */
+	/**
+	 * @author Nathan Sweet
+	 */
 	static private class WavInputStream extends FilterInputStream {
 		int channels, sampleRate, dataRemaining;
 
-		WavInputStream (FileHandle file) {
+		WavInputStream(FileHandle file) {
 			super(file.read());
 			try {
 				if (read() != 'R' || read() != 'I' || read() != 'F' || read() != 'F')
@@ -99,7 +101,8 @@ public class Wav {
 				skipFully(6);
 
 				int bitsPerSample = read() & 0xff | (read() & 0xff) << 8;
-				if (bitsPerSample != 16) throw new GdxRuntimeException("WAV files must have 16 bits per sample: " + bitsPerSample);
+				if (bitsPerSample != 16)
+					throw new GdxRuntimeException("WAV files must have 16 bits per sample: " + bitsPerSample);
 
 				skipFully(fmtChunkLength - 16);
 
@@ -110,7 +113,7 @@ public class Wav {
 			}
 		}
 
-		private int seekToChunk (char c1, char c2, char c3, char c4) throws IOException {
+		private int seekToChunk(char c1, char c2, char c3, char c4) throws IOException {
 			while (true) {
 				boolean found = read() == c1;
 				found &= read() == c2;
@@ -123,7 +126,7 @@ public class Wav {
 			}
 		}
 
-		private void skipFully (int count) throws IOException {
+		private void skipFully(int count) throws IOException {
 			while (count > 0) {
 				long skipped = in.skip(count);
 				if (skipped <= 0) throw new EOFException("Unable to skip.");
@@ -131,7 +134,7 @@ public class Wav {
 			}
 		}
 
-		public int read (byte[] buffer) throws IOException {
+		public int read(byte[] buffer) throws IOException {
 			if (dataRemaining == 0) return -1;
 			int offset = 0;
 			do {

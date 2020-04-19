@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,19 +16,20 @@
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.openal.AL11;
-
 import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.openal.AL11;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.openal.AL10.*;
 
-/** @author Nathan Sweet */
+/**
+ * @author Nathan Sweet
+ */
 public class OpenALAudioDevice implements AudioDevice {
 	static private final int bytesPerSample = 2;
 
@@ -45,42 +46,42 @@ public class OpenALAudioDevice implements AudioDevice {
 	private final int bufferCount;
 	private final ByteBuffer tempBuffer;
 
-	public OpenALAudioDevice (OpenALAudio audio, int sampleRate, boolean isMono, int bufferSize, int bufferCount) {
+	public OpenALAudioDevice(OpenALAudio audio, int sampleRate, boolean isMono, int bufferSize, int bufferCount) {
 		this.audio = audio;
 		channels = isMono ? 1 : 2;
 		this.bufferSize = bufferSize;
 		this.bufferCount = bufferCount;
 		this.format = channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 		this.sampleRate = sampleRate;
-		secondsPerBuffer = (float)bufferSize / bytesPerSample / channels / sampleRate;
+		secondsPerBuffer = (float) bufferSize / bytesPerSample / channels / sampleRate;
 		tempBuffer = BufferUtils.createByteBuffer(bufferSize);
 	}
 
-	public void writeSamples (short[] samples, int offset, int numSamples) {
+	public void writeSamples(short[] samples, int offset, int numSamples) {
 		if (bytes == null || bytes.length < numSamples * 2) bytes = new byte[numSamples * 2];
 		int end = Math.min(offset + numSamples, samples.length);
 		for (int i = offset, ii = 0; i < end; i++) {
 			short sample = samples[i];
-			bytes[ii++] = (byte)(sample & 0xFF);
-			bytes[ii++] = (byte)((sample >> 8) & 0xFF);
+			bytes[ii++] = (byte) (sample & 0xFF);
+			bytes[ii++] = (byte) ((sample >> 8) & 0xFF);
 		}
 		writeSamples(bytes, 0, numSamples * 2);
 	}
 
-	public void writeSamples (float[] samples, int offset, int numSamples) {
+	public void writeSamples(float[] samples, int offset, int numSamples) {
 		if (bytes == null || bytes.length < numSamples * 2) bytes = new byte[numSamples * 2];
 		int end = Math.min(offset + numSamples, samples.length);
 		for (int i = offset, ii = 0; i < end; i++) {
 			float floatSample = samples[i];
 			floatSample = MathUtils.clamp(floatSample, -1f, 1f);
-			int intSample = (int)(floatSample * 32767);
-			bytes[ii++] = (byte)(intSample & 0xFF);
-			bytes[ii++] = (byte)((intSample >> 8) & 0xFF);
+			int intSample = (int) (floatSample * 32767);
+			bytes[ii++] = (byte) (intSample & 0xFF);
+			bytes[ii++] = (byte) ((intSample >> 8) & 0xFF);
 		}
 		writeSamples(bytes, 0, numSamples * 2);
 	}
 
-	public void writeSamples (byte[] data, int offset, int length) {
+	public void writeSamples(byte[] data, int offset, int length) {
 		if (length < 0) throw new IllegalArgumentException("length cannot be < 0.");
 
 		if (sourceID == -1) {
@@ -124,8 +125,10 @@ public class OpenALAudioDevice implements AudioDevice {
 		}
 	}
 
-	/** Blocks until some of the data could be buffered. */
-	private int fillBuffer (byte[] data, int offset, int length) {
+	/**
+	 * Blocks until some of the data could be buffered.
+	 */
+	private int fillBuffer(byte[] data, int offset, int length) {
 		int written = Math.min(bufferSize, length);
 
 		outer:
@@ -145,7 +148,7 @@ public class OpenALAudioDevice implements AudioDevice {
 			}
 			// Wait for buffer to be free.
 			try {
-				Thread.sleep((long)(1000 * secondsPerBuffer));
+				Thread.sleep((long) (1000 * secondsPerBuffer));
 			} catch (InterruptedException ignored) {
 			}
 		}
@@ -159,7 +162,7 @@ public class OpenALAudioDevice implements AudioDevice {
 		return written;
 	}
 
-	public void stop () {
+	public void stop() {
 		if (sourceID == -1) return;
 		audio.freeSource(sourceID);
 		sourceID = -1;
@@ -167,34 +170,34 @@ public class OpenALAudioDevice implements AudioDevice {
 		isPlaying = false;
 	}
 
-	public boolean isPlaying () {
+	public boolean isPlaying() {
 		if (sourceID == -1) return false;
 		return isPlaying;
 	}
 
-	public void setVolume (float volume) {
+	public void setVolume(float volume) {
 		this.volume = volume;
 		if (sourceID != -1) alSourcef(sourceID, AL_GAIN, volume);
 	}
 
-	public float getPosition () {
+	public float getPosition() {
 		if (sourceID == -1) return 0;
 		return renderedSeconds + alGetSourcef(sourceID, AL11.AL_SEC_OFFSET);
 	}
 
-	public void setPosition (float position) {
+	public void setPosition(float position) {
 		renderedSeconds = position;
 	}
 
-	public int getChannels () {
+	public int getChannels() {
 		return format == AL_FORMAT_STEREO16 ? 2 : 1;
 	}
 
-	public int getRate () {
+	public int getRate() {
 		return sampleRate;
 	}
 
-	public void dispose () {
+	public void dispose() {
 		if (buffers == null) return;
 		if (sourceID != -1) {
 			audio.freeSource(sourceID);
@@ -204,11 +207,11 @@ public class OpenALAudioDevice implements AudioDevice {
 		buffers = null;
 	}
 
-	public boolean isMono () {
+	public boolean isMono() {
 		return channels == 1;
 	}
 
-	public int getLatency () {
-		return (int)(secondsPerBuffer * bufferCount * 1000);
+	public int getLatency() {
+		return (int) (secondsPerBuffer * bufferCount * 1000);
 	}
 }

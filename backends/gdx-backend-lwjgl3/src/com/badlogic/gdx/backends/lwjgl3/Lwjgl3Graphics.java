@@ -16,24 +16,23 @@
 
 package com.badlogic.gdx.backends.lwjgl3;
 
-import java.nio.IntBuffer;
-
 import com.badlogic.gdx.Application;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Disposable;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.opengl.GL11;
+
+import java.nio.IntBuffer;
 
 public class Lwjgl3Graphics implements Graphics, Disposable {
 	final Lwjgl3Window window;
@@ -88,7 +87,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 		GLFW.glfwSetFramebufferSizeCallback(window.getWindowHandle(), resizeCallback);
 	}
 
-	private void initiateGL () {
+	private void initiateGL() {
 		String versionString = gl20.glGetString(GL11.GL_VERSION);
 		String vendorString = gl20.glGetString(GL11.GL_VENDOR);
 		String rendererString = gl20.glGetString(GL11.GL_RENDERER);
@@ -143,12 +142,12 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 	}
 
 	@Override
-	public void setGL20 (GL20 gl20) {
+	public void setGL20(GL20 gl20) {
 		this.gl20 = gl20;
 	}
 
 	@Override
-	public void setGL30 (GL30 gl30) {
+	public void setGL30(GL30 gl30) {
 		this.gl30 = gl30;
 	}
 
@@ -214,7 +213,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 	}
 
 	@Override
-	public GLVersion getGLVersion () {
+	public GLVersion getGLVersion() {
 		return glVersion;
 	}
 
@@ -282,7 +281,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 					Math.min(windowX + windowWidth, monitor.virtualX + mode.width)
 							- Math.max(windowX, monitor.virtualX))
 					* Math.max(0, Math.min(windowY + windowHeight, monitor.virtualY + mode.height)
-							- Math.max(windowY, monitor.virtualY));
+					- Math.max(windowY, monitor.virtualY));
 
 			if (bestOverlap < overlap) {
 				bestOverlap = overlap;
@@ -358,7 +357,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 		} else {
 			// store window position so we can restore it when switching from fullscreen to windowed later
 			storeCurrentWindowPositionAndDisplayMode();
-			
+
 			// switch from windowed to fullscreen
 			GLFW.glfwSetWindowMonitor(window.getWindowHandle(), newMode.getMonitor(),
 					0, 0, newMode.width, newMode.height, newMode.refreshRate);
@@ -366,7 +365,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 		updateFramebufferInfo();
 		return true;
 	}
-	
+
 	private void storeCurrentWindowPositionAndDisplayMode() {
 		windowPosXBeforeFullscreen = window.getPositionX();
 		windowPosYBeforeFullscreen = window.getPositionY();
@@ -381,7 +380,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 			if (displayModeBeforeFullscreen == null) {
 				storeCurrentWindowPositionAndDisplayMode();
 			}
-				
+
 			GLFW.glfwSetWindowMonitor(window.getWindowHandle(), 0,
 					windowPosXBeforeFullscreen, windowPosYBeforeFullscreen, width, height,
 					displayModeBeforeFullscreen.refreshRate);

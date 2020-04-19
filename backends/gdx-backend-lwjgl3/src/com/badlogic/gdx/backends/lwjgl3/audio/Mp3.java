@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,18 +16,15 @@
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
 
-import java.io.ByteArrayOutputStream;
-
-import javazoom.jl.decoder.Bitstream;
-import javazoom.jl.decoder.BitstreamException;
-import javazoom.jl.decoder.Header;
-import javazoom.jl.decoder.MP3Decoder;
-import javazoom.jl.decoder.OutputBuffer;
-
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import javazoom.jl.decoder.*;
 
-/** @author Nathan Sweet */
+import java.io.ByteArrayOutputStream;
+
+/**
+ * @author Nathan Sweet
+ */
 public class Mp3 {
 	static public class Music extends OpenALMusic {
 		// Note: This uses a slightly modified version of JLayer.
@@ -36,7 +33,7 @@ public class Mp3 {
 		private OutputBuffer outputBuffer;
 		private MP3Decoder decoder;
 
-		public Music (OpenALAudio audio, FileHandle file) {
+		public Music(OpenALAudio audio, FileHandle file) {
 			super(audio, file);
 			if (audio.noDevice) return;
 			bitstream = new Bitstream(file.read());
@@ -53,7 +50,7 @@ public class Mp3 {
 			}
 		}
 
-		public int read (byte[] buffer) {
+		public int read(byte[] buffer) {
 			try {
 				boolean setup = bitstream == null;
 				if (setup) {
@@ -91,7 +88,7 @@ public class Mp3 {
 			}
 		}
 
-		public void reset () {
+		public void reset() {
 			if (bitstream == null) return;
 			try {
 				bitstream.close();
@@ -104,7 +101,7 @@ public class Mp3 {
 	static public class Sound extends OpenALSound {
 		// Note: This uses a slightly modified version of JLayer.
 
-		public Sound (OpenALAudio audio, FileHandle file) {
+		public Sound(OpenALAudio audio, FileHandle file) {
 			super(audio);
 			if (audio.noDevice) return;
 			ByteArrayOutputStream output = new ByteArrayOutputStream(4096);

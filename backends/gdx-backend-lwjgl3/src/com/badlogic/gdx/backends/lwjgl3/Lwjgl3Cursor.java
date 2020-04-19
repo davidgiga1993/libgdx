@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,17 +16,16 @@
 
 package com.badlogic.gdx.backends.lwjgl3;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWImage;
-
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Lwjgl3Cursor implements Cursor {
 	static final Array<Lwjgl3Cursor> cursors = new Array<Lwjgl3Cursor>();
@@ -118,8 +117,8 @@ public class Lwjgl3Cursor implements Cursor {
 			} else if (systemCursor == SystemCursor.VerticalResize) {
 				handle = GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR);
 			} else if (systemCursor == SystemCursor.Ibeam) {
- 				handle = GLFW.glfwCreateStandardCursor(GLFW.GLFW_IBEAM_CURSOR);
-  			} else {
+				handle = GLFW.glfwCreateStandardCursor(GLFW.GLFW_IBEAM_CURSOR);
+			} else {
 				throw new GdxRuntimeException("Unknown system cursor " + systemCursor);
 			}
 

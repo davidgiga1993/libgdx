@@ -1,17 +1,17 @@
 /**
  * Copyright (c) 2007, Slick 2D
- * 
+ * <p>
  * All rights reserved.
- * 
+ * <p>
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
  * conditions are met:
- * 
+ * <p>
  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the distribution. Neither the name of the Slick 2D nor the names of
  * its contributors may be used to endorse or promote products derived from this software without specific prior written
  * permission.
- * 
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
  * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
  * SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -21,13 +21,6 @@
  */
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import org.lwjgl.BufferUtils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -40,12 +33,18 @@ import com.jcraft.jorbis.Block;
 import com.jcraft.jorbis.Comment;
 import com.jcraft.jorbis.DspState;
 import com.jcraft.jorbis.Info;
+import org.lwjgl.BufferUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /** An input stream to read Ogg Vorbis.
  * @author kevin */
 public class OggInputStream extends InputStream {
 	private final static int BUFFER_SIZE = 512;
-	
+
 	/** The conversion buffer size */
 	private int convsize = BUFFER_SIZE * 4;
 	/** The buffer used to read OGG file */
@@ -92,9 +91,9 @@ public class OggInputStream extends InputStream {
 	private int total;
 
 	/** Create a new stream to decode OGG data
-	 * 
+	 *
 	 * @param input The input stream from which to read the OGG file */
-	public OggInputStream (InputStream input) {
+	public OggInputStream(InputStream input) {
 		this(input, null);
 	}
 
@@ -104,7 +103,7 @@ public class OggInputStream extends InputStream {
 	 *
 	 * @param input The input stream from which to read the OGG file
 	 * @param previousStream The stream instance to reuse buffers from, may be null */
-	OggInputStream (InputStream input, OggInputStream previousStream) {
+	OggInputStream(InputStream input, OggInputStream previousStream) {
 		if (previousStream == null) {
 			convbuffer = new byte[convsize];
 			pcmBuffer = BufferUtils.createByteBuffer(4096 * 500);
@@ -124,40 +123,40 @@ public class OggInputStream extends InputStream {
 	}
 
 	/** Get the number of bytes on the stream
-	 * 
+	 *
 	 * @return The number of the bytes on the stream */
-	public int getLength () {
+	public int getLength() {
 		return total;
 	}
 
-	public int getChannels () {
+	public int getChannels() {
 		return oggInfo.channels;
 	}
 
-	public int getSampleRate () {
+	public int getSampleRate() {
 		return oggInfo.rate;
 	}
 
 	/** Initialise the streams and thread involved in the streaming of OGG data */
-	private void init () {
+	private void init() {
 		initVorbis();
 		readPCM();
 	}
 
 	/** @see java.io.InputStream#available() */
-	public int available () {
+	public int available() {
 		return endOfStream ? 0 : 1;
 	}
 
 	/** Initialise the vorbis decoding */
-	private void initVorbis () {
+	private void initVorbis() {
 		syncState.init();
 	}
 
 	/** Get a page and packet from that page
-	 * 
+	 *
 	 * @return True if there was a page available */
-	private boolean getPageAndPacket () {
+	private boolean getPageAndPacket() {
 		// grab some data at the head of the stream. We want the first page
 		// (which is guaranteed to be small and only contain the Vorbis
 		// stream initial header) We need the first page to get the stream
@@ -284,7 +283,7 @@ public class OggInputStream extends InputStream {
 	}
 
 	/** Decode the OGG file as shown in the jogg/jorbis examples */
-	private void readPCM () {
+	private void readPCM() {
 		boolean wrote = false;
 
 		while (true) { // we repeat if the bitstream is chained
@@ -347,7 +346,7 @@ public class OggInputStream extends InputStream {
 										// int ptr=i;
 										int mono = _index[i];
 										for (int j = 0; j < bout; j++) {
-											int val = (int)(pcm[i][mono + j] * 32767.);
+											int val = (int) (pcm[i][mono + j] * 32767.);
 											// might as well guard against clipping
 											if (val > 32767) {
 												val = 32767;
@@ -358,11 +357,11 @@ public class OggInputStream extends InputStream {
 											if (val < 0) val = val | 0x8000;
 
 											if (bigEndian) {
-												convbuffer[ptr] = (byte)(val >>> 8);
-												convbuffer[ptr + 1] = (byte)(val);
+												convbuffer[ptr] = (byte) (val >>> 8);
+												convbuffer[ptr + 1] = (byte) (val);
 											} else {
-												convbuffer[ptr] = (byte)(val);
-												convbuffer[ptr + 1] = (byte)(val >>> 8);
+												convbuffer[ptr] = (byte) (val);
+												convbuffer[ptr + 1] = (byte) (val >>> 8);
 											}
 											ptr += 2 * (oggInfo.channels);
 										}
@@ -429,7 +428,7 @@ public class OggInputStream extends InputStream {
 		endOfStream = true;
 	}
 
-	public int read () {
+	public int read() {
 		if (readIndex >= pcmBuffer.position()) {
 			pcmBuffer.clear();
 			readPCM();
@@ -448,15 +447,15 @@ public class OggInputStream extends InputStream {
 		return value;
 	}
 
-	public boolean atEnd () {
+	public boolean atEnd() {
 		return endOfStream && (readIndex >= pcmBuffer.position());
 	}
 
-	public int read (byte[] b, int off, int len) {
+	public int read(byte[] b, int off, int len) {
 		for (int i = 0; i < len; i++) {
 			int value = read();
 			if (value >= 0) {
-				b[i] = (byte)value;
+				b[i] = (byte) value;
 			} else {
 				if (i == 0) {
 					return -1;
@@ -469,11 +468,11 @@ public class OggInputStream extends InputStream {
 		return len;
 	}
 
-	public int read (byte[] b) {
+	public int read(byte[] b) {
 		return read(b, 0, b.length);
 	}
 
-	public void close () {
+	public void close() {
 		StreamUtils.closeQuietly(input);
 	}
 }

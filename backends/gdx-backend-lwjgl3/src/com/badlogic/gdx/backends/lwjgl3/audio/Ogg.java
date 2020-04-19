@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,25 +16,27 @@
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
 
-import java.io.ByteArrayOutputStream;
-
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.StreamUtils;
 
-/** @author Nathan Sweet */
+import java.io.ByteArrayOutputStream;
+
+/**
+ * @author Nathan Sweet
+ */
 public class Ogg {
 	static public class Music extends OpenALMusic {
 		private OggInputStream input;
 		private OggInputStream previousInput;
 
-		public Music (OpenALAudio audio, FileHandle file) {
+		public Music(OpenALAudio audio, FileHandle file) {
 			super(audio, file);
 			if (audio.noDevice) return;
 			input = new OggInputStream(file.read());
 			setup(input.getChannels(), input.getSampleRate());
 		}
 
-		public int read (byte[] buffer) {
+		public int read(byte[] buffer) {
 			if (input == null) {
 				input = new OggInputStream(file.read(), previousInput);
 				setup(input.getChannels(), input.getSampleRate());
@@ -43,14 +45,14 @@ public class Ogg {
 			return input.read(buffer);
 		}
 
-		public void reset () {
+		public void reset() {
 			StreamUtils.closeQuietly(input);
 			previousInput = null;
 			input = null;
 		}
 
 		@Override
-		protected void loop () {
+		protected void loop() {
 			StreamUtils.closeQuietly(input);
 			previousInput = input;
 			input = null;
@@ -58,7 +60,7 @@ public class Ogg {
 	}
 
 	static public class Sound extends OpenALSound {
-		public Sound (OpenALAudio audio, FileHandle file) {
+		public Sound(OpenALAudio audio, FileHandle file) {
 			super(audio);
 			if (audio.noDevice) return;
 			OggInputStream input = null;
