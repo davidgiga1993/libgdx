@@ -31,22 +31,24 @@ import java.io.File;
 import java.io.PrintStream;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 public class Lwjgl3Application implements Application {
 	public static LwjglWinMultitouch multitouchInput;
 	private final Lwjgl3ApplicationConfiguration config;
-	final Array<Lwjgl3Window> windows = new Array<Lwjgl3Window>();
+	final Array<Lwjgl3Window> windows = new Array<>();
 	private volatile Lwjgl3Window currentWindow;
 	private Audio audio;
 	private final Files files;
 	private final Net net;
-	private final ObjectMap<String, Preferences> preferences = new ObjectMap<String, Preferences>();
+	private final ObjectMap<String, Preferences> preferences = new ObjectMap<>();
 	private final Lwjgl3Clipboard clipboard;
 	private int logLevel = LOG_INFO;
 	private ApplicationLogger applicationLogger;
 	private volatile boolean running = true;
-	private final Array<Runnable> runnables = new Array<Runnable>();
-	private final Array<Runnable> executedRunnables = new Array<Runnable>();
-	private final Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
+	private final Array<Runnable> runnables = new Array<>();
+	private final Array<Runnable> executedRunnables = new Array<>();
+	private final Array<LifecycleListener> lifecycleListeners = new Array<>();
 	private static GLFWErrorCallback errorCallback;
 	private static GLVersion glVersion;
 	private static Callback glDebugCallback;
@@ -107,7 +109,7 @@ public class Lwjgl3Application implements Application {
 	}
 
 	private void loop() {
-		Array<Lwjgl3Window> closedWindows = new Array<Lwjgl3Window>();
+		Array<Lwjgl3Window> closedWindows = new Array<>();
 		while (running && windows.size > 0) {
 			// FIXME put it on a separate thread
 			if (audio instanceof OpenALAudio) {
@@ -406,7 +408,7 @@ public class Lwjgl3Application implements Application {
 			GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, config.samples);
 		}
 
-		if (config.useGL30) {
+		if (config.glMode == GlMode.GL_30) {
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, config.gles30ContextMajorVersion);
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, config.gles30ContextMinorVersion);
 			if (SharedLibraryLoader.isMac) {
@@ -416,6 +418,11 @@ public class Lwjgl3Application implements Application {
 				GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
 				GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
 			}
+		} else if (config.glMode == GlMode.GLES_20) {
+			GLFW.glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+			GLFW.glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+			GLFW.glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+			GLFW.glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		}
 
 		if (config.transparentFramebuffer) {
@@ -463,9 +470,17 @@ public class Lwjgl3Application implements Application {
 		}
 		GLFW.glfwMakeContextCurrent(windowHandle);
 		GLFW.glfwSwapInterval(config.vSyncEnabled ? 1 : 0);
-		GL.createCapabilities();
 
-		initiateGL();
+		DesktopGL20 gl;
+		if (config.glMode == GlMode.GLES_20) {
+			gl = new Lwjgl3GLES20();
+		} else {
+			gl = new Lwjgl3GL20();
+		}
+
+		gl.createCapabilities();
+		glVersion = new GLVersion(Application.ApplicationType.Desktop, gl.glGetString(GL11.GL_VERSION), gl.glGetString(GL11.GL_VENDOR), gl.glGetString(GL11.GL_RENDERER));
+
 		if (!glVersion.isVersionEqualToOrHigher(2, 0))
 			throw new GdxRuntimeException("OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: "
 					+ GL11.glGetString(GL11.GL_VERSION) + "\n" + glVersion.getDebugVersionString());
@@ -475,19 +490,14 @@ public class Lwjgl3Application implements Application {
 					+ GL11.glGetString(GL11.GL_VERSION) + ", FBO extension: false\n" + glVersion.getDebugVersionString());
 		}
 
+		System.err.println(glVersion.getDebugVersionString());
+
 		if (config.debug) {
 			glDebugCallback = GLUtil.setupDebugMessageCallback(config.debugStream);
 			setGLDebugMessageControl(GLDebugMessageSeverity.NOTIFICATION, false);
 		}
 
 		return windowHandle;
-	}
-
-	private static void initiateGL() {
-		String versionString = GL11.glGetString(GL11.GL_VERSION);
-		String vendorString = GL11.glGetString(GL11.GL_VENDOR);
-		String rendererString = GL11.glGetString(GL11.GL_RENDERER);
-		glVersion = new GLVersion(Application.ApplicationType.Desktop, versionString, vendorString, rendererString);
 	}
 
 	private static boolean supportsFBO() {

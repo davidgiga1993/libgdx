@@ -186,7 +186,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	protected AndroidInput createInput(AndroidApplication androidApplication, Context context, Object view, AndroidApplicationConfiguration config) {
-		return new AndroidInputImplThreePlus(androidApplication, context, view, config);
+		return AndroidInputFactory.newAndroidInput(androidApplication, context, view, config);
 	}
 
 	protected FrameLayout.LayoutParams createLayoutParams() {

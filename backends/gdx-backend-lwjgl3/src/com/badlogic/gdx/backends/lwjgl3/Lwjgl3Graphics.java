@@ -75,13 +75,18 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 
 	public Lwjgl3Graphics(Lwjgl3Window window) {
 		this.window = window;
-		if (window.getConfig().useGL30) {
-			this.gl30 = new Lwjgl3GL30();
-			this.gl20 = this.gl30;
-		} else {
-			this.gl20 = new Lwjgl3GL20();
-			this.gl30 = null;
+		switch (window.getConfig().glMode) {
+			case GL_20:
+				this.gl20 = new Lwjgl3GL20();
+				break;
+			case GL_30:
+				this.gl30 = new Lwjgl3GL30();
+				this.gl20 = this.gl30;
+				break;
+			case GLES_20:
+				this.gl20 = new Lwjgl3GLES20();
 		}
+
 		updateFramebufferInfo();
 		initiateGL();
 		GLFW.glfwSetFramebufferSizeCallback(window.getWindowHandle(), resizeCallback);

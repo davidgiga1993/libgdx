@@ -22,7 +22,7 @@ import org.lwjgl.opengl.*;
 
 import java.nio.*;
 
-class Lwjgl3GL20 implements com.badlogic.gdx.graphics.GL20 {
+class Lwjgl3GL20 implements DesktopGL20 {
 	private ByteBuffer buffer = null;
 	private FloatBuffer floatBuffer = null;
 	private IntBuffer intBuffer = null;
@@ -831,5 +831,10 @@ class Lwjgl3GL20 implements com.badlogic.gdx.graphics.GL20 {
 
 	public void glVertexAttribPointer(int indx, int size, int type, boolean normalized, int stride, int ptr) {
 		GL20.glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+	}
+
+	@Override
+	public Object createCapabilities() {
+		return GL.createCapabilities();
 	}
 }

@@ -48,7 +48,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	int audioDeviceBufferSize = 512;
 	int audioDeviceBufferCount = 9;
 
-	boolean useGL30 = false;
+	GlMode glMode = GlMode.GL_20;
 	int gles30ContextMajorVersion = 3;
 	int gles30ContextMinorVersion = 2;
 
@@ -79,7 +79,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 		audioDeviceSimultaneousSources = config.audioDeviceSimultaneousSources;
 		audioDeviceBufferSize = config.audioDeviceBufferSize;
 		audioDeviceBufferCount = config.audioDeviceBufferCount;
-		useGL30 = config.useGL30;
+		glMode = config.glMode;
 		gles30ContextMajorVersion = config.gles30ContextMajorVersion;
 		gles30ContextMinorVersion = config.gles30ContextMinorVersion;
 		r = config.r;
@@ -143,15 +143,15 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	 * and minor version 2 will ensure that all OpenGL ES 3.0 features are
 	 * supported. Note however that Mac OS X does only support 3.2.
 	 *
-	 * @param useGL30           whether to use OpenGL ES 3.0
+	 * @param mode              Rendering mode
 	 * @param gles3MajorVersion OpenGL ES major version, use 3 as default
 	 * @param gles3MinorVersion OpenGL ES minor version, use 2 as default
 	 * @see <a href=
 	 * "http://legacy.lwjgl.org/javadoc/org/lwjgl/opengl/ContextAttribs.html">
 	 * LWJGL OSX ContextAttribs note</a>
 	 */
-	public void useOpenGL3(boolean useGL30, int gles3MajorVersion, int gles3MinorVersion) {
-		this.useGL30 = useGL30;
+	public void setGlMode(GlMode mode, int gles3MajorVersion, int gles3MinorVersion) {
+		this.glMode = mode;
 		this.gles30ContextMajorVersion = gles3MajorVersion;
 		this.gles30ContextMinorVersion = gles3MinorVersion;
 	}
