@@ -16,6 +16,7 @@
 
 package com.badlogic.gdx.backends.lwjgl3;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
@@ -30,9 +31,9 @@ import java.nio.IntBuffer;
 
 public class Lwjgl3Window implements Disposable {
 	private long windowHandle;
-	private final ApplicationListener listener;
+	final ApplicationListener listener;
 	private boolean listenerInitialized = false;
-	private Lwjgl3WindowListener windowListener;
+	Lwjgl3WindowListener windowListener;
 	private Lwjgl3Graphics graphics;
 	private Lwjgl3Input input;
 	private final Lwjgl3ApplicationConfiguration config;
@@ -40,7 +41,7 @@ public class Lwjgl3Window implements Disposable {
 	private final Array<Runnable> executedRunnables = new Array<Runnable>();
 	private final IntBuffer tmpBuffer;
 	private final IntBuffer tmpBuffer2;
-	private boolean iconified = false;
+	boolean iconified = false;
 	private boolean requestRendering = false;
 	
 	private final GLFWWindowFocusCallback focusCallback = new GLFWWindowFocusCallback() {
@@ -269,8 +270,9 @@ public class Lwjgl3Window implements Disposable {
 	/**
 	 * Sets the icon that will be used in the window's title bar. Has no effect in macOS, which doesn't use window icons.
 	 * @param image One or more images. The one closest to the system's desired size will be scaled. Good sizes include
-	 * 16x16, 32x32 and 48x48. Pixmap format {@link Pixmap.Format.RGBA8888 RGBA8888} is preferred so the images will not 
-	 * have to be copied and converted. The chosen image is copied, and the provided Pixmaps are not disposed.
+	 * 16x16, 32x32 and 48x48. Pixmap format {@link com.badlogic.gdx.graphics.Pixmap.Format#RGBA8888 RGBA8888} is preferred
+	 * so the images will not have to be copied and converted. The chosen image is copied, and the provided Pixmaps are not
+	 * disposed.
 	 */
 	public void setIcon (Pixmap... image) {
 		setIcon(windowHandle, image);
