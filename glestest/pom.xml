@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.devcore.gdx</groupId>
+        <artifactId>gdx-parent</artifactId>
+        <version>1.9.11-G</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.devcore.gdx.glestest</artifactId>
+    <packaging>jar</packaging>
+    <name>glestest</name>
+
+
+    <repositories>
+        <repository>
+            <id>dev-core-public</id>
+            <name>Public dev-core repo</name>
+            <url>https://dev-core.org/maven-repo-pub</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>gdx-backend-lwjgl3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.badlogicgames.gdx</groupId>
+            <artifactId>gdx-platform</artifactId>
+            <version>1.9.11-SNAPSHOT</version>
+            <classifier>natives-desktop</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.devcore</groupId>
+            <artifactId>angle</artifactId>
+            <version>1.0.0</version>
+            <classifier>natives-windows</classifier>
+        </dependency>
+    </dependencies>
+</project>
