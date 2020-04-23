@@ -66,7 +66,7 @@ public interface AndroidApplicationBase extends Application {
 	 * 
 	 * @return the {@link AndroidInput} object */
 	@Override
-	AndroidInput getInput ();
+	IAndroidInput getInput ();
 
 	/** Returns the {@link LifecycleListener} array associated with this {@link AndroidApplicationBase}
 	 * 

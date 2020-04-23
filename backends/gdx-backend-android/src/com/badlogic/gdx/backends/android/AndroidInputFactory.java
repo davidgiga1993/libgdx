@@ -22,8 +22,8 @@ import com.badlogic.gdx.Application;
 /** Class that instantiates AndroidInput or AndroidInputThreePlus depending on the SDK level.
  * @author mzechner */
 public class AndroidInputFactory {
-	public static AndroidInput newAndroidInput (Application activity, Context context, Object view,
-		AndroidApplicationConfiguration config) {
+	public static IAndroidInput newAndroidInput (Application activity, Context context, Object view,
+												 AndroidApplicationConfiguration config) {
 		int sdkVersion = android.os.Build.VERSION.SDK_INT;
 		if (sdkVersion >= 12) {
 			return new AndroidInputThreePlus(activity, context, view, config);

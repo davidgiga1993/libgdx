@@ -47,7 +47,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	protected AndroidGraphics graphics;
-	protected AndroidInput input;
+	protected IAndroidInput input;
 	protected AndroidAudio audio;
 	protected AndroidFiles files;
 	protected AndroidNet net;
@@ -185,7 +185,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		}
 	}
 
-	protected AndroidInput createInput(AndroidApplication androidApplication, Context context, Object view, AndroidApplicationConfiguration config) {
+	protected IAndroidInput createInput(AndroidApplication androidApplication, Context context, Object view, AndroidApplicationConfiguration config) {
 		return AndroidInputFactory.newAndroidInput(androidApplication, context, view, config);
 	}
 
@@ -322,7 +322,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	@Override
-	public AndroidInput getInput() {
+	public IAndroidInput getInput() {
 		return input;
 	}
 
@@ -375,7 +375,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		super.onConfigurationChanged(config);
 		boolean keyboardAvailable = false;
 		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) keyboardAvailable = true;
-		input.keyboardAvailable = keyboardAvailable;
+		input.setKeyboardAvailable(keyboardAvailable);
 	}
 
 	@Override

@@ -19,7 +19,6 @@ package com.badlogic.gdx.backends.android;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.android.AndroidInput.TouchEvent;
 
 /**
  * Mouse handler for devices running Android >= 3.1.
@@ -45,7 +44,7 @@ public class AndroidMouseHandler {
 					x = (int) event.getX();
 					y = (int) event.getY();
 					if ((x != deltaX) || (y != deltaY)) { // Avoid garbage events
-						postTouchEvent(input, TouchEvent.TOUCH_MOVED, x, y, 0, timeStamp);
+						postTouchEvent(input, AndroidInput.TouchEvent.TOUCH_MOVED, x, y, 0, timeStamp);
 						deltaX = x;
 						deltaY = y;
 					}
@@ -53,7 +52,7 @@ public class AndroidMouseHandler {
 
 				case MotionEvent.ACTION_SCROLL:
 					scrollAmount = (int) -Math.signum(event.getAxisValue(MotionEvent.AXIS_VSCROLL));
-					postTouchEvent(input, TouchEvent.TOUCH_SCROLLED, 0, 0, scrollAmount, timeStamp);
+					postTouchEvent(input, AndroidInput.TouchEvent.TOUCH_SCROLLED, 0, 0, scrollAmount, timeStamp);
 
 			}
 		}
@@ -61,23 +60,8 @@ public class AndroidMouseHandler {
 		return true;
 	}
 
-	private void logAction(int action) {
-		String actionStr = "";
-		if (action == MotionEvent.ACTION_HOVER_ENTER)
-			actionStr = "HOVER_ENTER";
-		else if (action == MotionEvent.ACTION_HOVER_MOVE)
-			actionStr = "HOVER_MOVE";
-		else if (action == MotionEvent.ACTION_HOVER_EXIT)
-			actionStr = "HOVER_EXIT";
-		else if (action == MotionEvent.ACTION_SCROLL)
-			actionStr = "SCROLL";
-		else
-			actionStr = "UNKNOWN (" + action + ")";
-		Gdx.app.log("AndroidMouseHandler", "action " + actionStr);
-	}
-
 	private void postTouchEvent(AndroidInput input, int type, int x, int y, int scrollAmount, long timeStamp) {
-		TouchEvent event = input.usedTouchEvents.obtain();
+		AndroidInput.TouchEvent event = input.usedTouchEvents.obtain();
 		event.timeStamp = timeStamp;
 		event.x = x;
 		event.y = y;

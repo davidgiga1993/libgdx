@@ -47,11 +47,11 @@ import com.badlogic.gdx.Input.Peripheral;
 class AndroidOnscreenKeyboard implements OnKeyListener, OnTouchListener {
 	final Context context;
 	final Handler handler;
-	final AndroidInput input;
+	final IAndroidInput input;
 	Dialog dialog;
 	TextView textView;
 
-	public AndroidOnscreenKeyboard(Context context, Handler handler, AndroidInput input) {
+	public AndroidOnscreenKeyboard(Context context, Handler handler, IAndroidInput input) {
 		this.context = context;
 		this.handler = handler;
 		this.input = input;
