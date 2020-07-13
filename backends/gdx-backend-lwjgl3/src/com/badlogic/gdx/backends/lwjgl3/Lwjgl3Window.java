@@ -366,7 +366,7 @@ public class Lwjgl3Window implements Disposable {
 		return graphics;
 	}
 
-	Lwjgl3Input getInput() {
+	public Lwjgl3Input getInput() {
 		return input;
 	}
 
