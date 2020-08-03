@@ -178,10 +178,10 @@ public class Lwjgl3Input implements Input, Disposable {
 
 	private void registerNativeTouchHandler() {
 		MultitouchProcessor processor = new MultitouchProcessor() {
-			private Array<Integer> activePointers = new Array<>(10);
+			private final Array<Integer> activePointers = new Array<>(10);
 
 			@Override
-			public void onTouch(int x, int y, int pointer, int mode, int button) {
+			public void onTouch(int x, int y, int pointerId, int mode, int button) {
 				if (window.getConfig().hdpiMode == HdpiMode.Pixels) {
 					float xScale = window.getGraphics().getBackBufferWidth() / (float) window.getGraphics().getLogicalWidth();
 					float yScale = window.getGraphics().getBackBufferHeight() / (float) window.getGraphics().getLogicalHeight();
@@ -189,21 +189,21 @@ public class Lwjgl3Input implements Input, Disposable {
 					y = (int) (y * yScale);
 				}
 
-				int pointerIndex = getPointerIndex(pointer);
+				int pointerIndex = getPointerIndex(pointerId);
 				switch (mode) {
 					case Multitouch.POINTER_DOWN:
-						inputProcessor.touchDown(x, y, activePointers.size, button);
-						activePointers.add(pointer);
+						inputProcessor.touchDown(x, y, pointerId, button);
+						activePointers.add(pointerId);
 						break;
 					case Multitouch.POINTER_MOVE:
 						if (pointerIndex != -1) {
-							inputProcessor.touchDragged(x, y, pointerIndex);
+							inputProcessor.touchDragged(x, y, pointerId);
 							return;
 						}
 						inputProcessor.mouseMoved(x, y);
 						return;
 					case Multitouch.POINTER_UP:
-						inputProcessor.touchUp(x, y, pointerIndex, button);
+						inputProcessor.touchUp(x, y, pointerId, button);
 						if (pointerIndex < 0 || pointerIndex >= activePointers.size)
 							return;
 						activePointers.removeIndex(pointerIndex);

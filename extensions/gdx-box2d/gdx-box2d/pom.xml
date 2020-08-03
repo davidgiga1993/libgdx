@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.devcore.gdx</groupId>
 		<artifactId>gdx-box2d-parent</artifactId>
-		<version>1.9.11-C</version>
+		<version>1.9.11-D</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
