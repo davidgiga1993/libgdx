@@ -25,7 +25,6 @@ import org.lwjgl.openal.AL11;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -41,7 +40,7 @@ public abstract class OpenALMusic implements Music {
 
 	private FloatArray renderedSecondsQueue = new FloatArray(bufferCount);
 
-	private final OpenALAudio audio;
+	private final OpenALLwjglAudio audio;
 	private IntBuffer buffers;
 	private int sourceID = -1;
 	private int format, sampleRate;
@@ -54,7 +53,7 @@ public abstract class OpenALMusic implements Music {
 
 	private OnCompletionListener onCompletionListener;
 
-	public OpenALMusic (OpenALAudio audio, FileHandle file) {
+	public OpenALMusic (OpenALLwjglAudio audio, FileHandle file) {
 		this.audio = audio;
 		this.file = file;
 		this.onCompletionListener = null;
@@ -151,8 +150,8 @@ public abstract class OpenALMusic implements Music {
 		this.pan = pan;
 		if (audio.noDevice) return;
 		if (sourceID == -1) return;
-		alSource3f(sourceID, AL_POSITION, MathUtils.cos((pan - 1) * MathUtils.PI / 2), 0,
-			MathUtils.sin((pan + 1) * MathUtils.PI / 2));
+		alSource3f(sourceID, AL_POSITION, MathUtils.cos((pan - 1) * MathUtils.HALF_PI), 0,
+			MathUtils.sin((pan + 1) * MathUtils.HALF_PI));
 		alSourcef(sourceID, AL_GAIN, volume);
 	}
 

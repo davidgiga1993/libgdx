@@ -32,6 +32,7 @@ import java.nio.IntBuffer;
 public class Lwjgl3Window implements Disposable {
 	private long windowHandle;
 	final ApplicationListener listener;
+	final Lwjgl3ApplicationBase application;
 	private boolean listenerInitialized = false;
 	Lwjgl3WindowListener windowListener;
 	private Lwjgl3Graphics graphics;
@@ -145,17 +146,18 @@ public class Lwjgl3Window implements Disposable {
 		}
 	};
 
-	Lwjgl3Window(ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
+	Lwjgl3Window(ApplicationListener listener, Lwjgl3ApplicationConfiguration config, Lwjgl3ApplicationBase application) {
 		this.listener = listener;
 		this.windowListener = config.windowListener;
 		this.config = config;
+		this.application = application;
 		this.tmpBuffer = BufferUtils.createIntBuffer(1);
 		this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
 	}
 
 	void create(long windowHandle, LwjglWinMultitouch multitouchInput) {
 		this.windowHandle = windowHandle;
-		this.input = new Lwjgl3Input(this, multitouchInput);
+		this.input = application.createInput(this, multitouchInput);
 		this.graphics = new Lwjgl3Graphics(this);
 
 		GLFW.glfwSetWindowFocusCallback(windowHandle, focusCallback);

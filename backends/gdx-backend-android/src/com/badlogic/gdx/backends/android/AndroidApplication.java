@@ -129,9 +129,9 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		graphics = new AndroidGraphics(this, config, config.resolutionStrategy == null ? new FillResolutionStrategy()
 				: config.resolutionStrategy);
 		input = createInput(this, this, graphics.view, config);
-		audio = new AndroidAudio(this, config);
+		audio = createAudio(this, config);
 		this.getFilesDir(); // workaround for Android bug #10515463
-		files = new AndroidFiles(this.getAssets(), this.getFilesDir().getAbsolutePath());
+		files = new AndroidFiles(this.getAssets(), this);
 		net = new AndroidNet(this, config);
 		this.listener = listener;
 		this.handler = new Handler();
@@ -183,6 +183,10 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 			AndroidVisibilityListener vlistener = new AndroidVisibilityListener();
 			vlistener.createListener(this);
 		}
+		
+		// detect an already connected bluetooth keyboardAvailable
+		if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)
+			input.setKeyboardAvailable(true);
 	}
 
 	protected IAndroidInput createInput(AndroidApplication androidApplication, Context context, Object view, AndroidApplicationConfiguration config) {
@@ -202,13 +206,10 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void hideStatusBar(boolean hide) {
-		if (!hide || getVersion() < 11) return;
+		if (!hide) return;
 
 		View rootView = getWindow().getDecorView();
-
-		if (getVersion() <= 13) rootView.setSystemUiVisibility(0x0);
 		rootView.setSystemUiVisibility(0x1);
 	}
 
@@ -312,6 +313,11 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	@Override
+	public AndroidInput getInput () {
+		return input;
+	}
+
+	@Override
 	public Files getFiles() {
 		return files;
 	}
@@ -323,10 +329,6 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 
 	@Override
 	public IAndroidInput getInput() {
-		return input;
-	}
-
-	@Override
 	public Net getNet() {
 		return net;
 	}
@@ -510,5 +512,15 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	@Override
 	public Handler getHandler() {
 		return this.handler;
+	}
+
+	@Override
+	public AndroidAudio createAudio (Context context, AndroidApplicationConfiguration config) {
+		return new DefaultAndroidAudio(context, config);
+	}
+
+	@Override
+	public AndroidInput createInput (Application activity, Context context, Object view, AndroidApplicationConfiguration config) {
+		return new DefaultAndroidInput(this, this, graphics.view, config);
 	}
 }

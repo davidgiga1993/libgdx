@@ -16,11 +16,11 @@
 
 package com.badlogic.gdx.utils;
 
-import static com.badlogic.gdx.utils.ObjectSet.*;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import static com.badlogic.gdx.utils.ObjectSet.tableSize;
 
 /** An unordered map where the keys are unboxed longs and values are objects. No allocation is done except when growing the table
  * size.
@@ -136,8 +136,7 @@ public class LongMap<V> implements Iterable<LongMap.Entry<V>> {
 		}
 	}
 
-	@Null
-	public V put (long key, @Null V value) {
+	public @Null V put (long key, @Null V value) {
 		if (key == 0) {
 			V oldValue = zeroValue;
 			zeroValue = value;
@@ -183,8 +182,7 @@ public class LongMap<V> implements Iterable<LongMap.Entry<V>> {
 		}
 	}
 
-	@Null
-	public V get (long key) {
+	public @Null V get (long key) {
 		if (key == 0) return hasZeroValue ? zeroValue : null;
 		int i = locateKey(key);
 		return i >= 0 ? valueTable[i] : null;
@@ -196,8 +194,8 @@ public class LongMap<V> implements Iterable<LongMap.Entry<V>> {
 		return i >= 0 ? valueTable[i] : defaultValue;
 	}
 
-	@Null
-	public V remove (long key) {
+	/** Returns the value for the removed key, or null if the key is not in the map. */
+	public @Null V remove (long key) {
 		if (key == 0) {
 			if (!hasZeroValue) return null;
 			hasZeroValue = false;
@@ -627,8 +625,7 @@ public class LongMap<V> implements Iterable<LongMap.Entry<V>> {
 			return hasNext;
 		}
 
-		@Null
-		public V next () {
+		public @Null V next () {
 			if (!hasNext) throw new NoSuchElementException();
 			if (!valid) throw new GdxRuntimeException("#iterator() cannot be used nested.");
 			V value;

@@ -16,23 +16,24 @@
 
 package com.badlogic.gdx.backends.lwjgl3;
 
+import java.nio.IntBuffer;
+
 import com.badlogic.gdx.Application;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Disposable;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.opengl.GL11;
-
-import java.nio.IntBuffer;
 
 public class Lwjgl3Graphics implements Graphics, Disposable {
 	final Lwjgl3Window window;
@@ -53,10 +54,14 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 	private int fps;
 	private int windowPosXBeforeFullscreen;
 	private int windowPosYBeforeFullscreen;
+	private int windowWidthBeforeFullscreen;
+	private int windowHeightBeforeFullscreen;
 	private DisplayMode displayModeBeforeFullscreen = null;
 
 	IntBuffer tmpBuffer = BufferUtils.createIntBuffer(1);
 	IntBuffer tmpBuffer2 = BufferUtils.createIntBuffer(1);
+	IntBuffer tmpBuffer3 = BufferUtils.createIntBuffer(1);
+	IntBuffer tmpBuffer4 = BufferUtils.createIntBuffer(1);
 
 	private GLFWFramebufferSizeCallback resizeCallback = new GLFWFramebufferSizeCallback() {
 		@Override
@@ -87,7 +92,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 		GLFW.glfwSetFramebufferSizeCallback(window.getWindowHandle(), resizeCallback);
 	}
 
-	private void initiateGL() {
+	private void initiateGL () {
 		String versionString = gl20.glGetString(GL11.GL_VERSION);
 		String vendorString = gl20.glGetString(GL11.GL_VENDOR);
 		String rendererString = gl20.glGetString(GL11.GL_RENDERER);
@@ -142,12 +147,12 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 	}
 
 	@Override
-	public void setGL20(GL20 gl20) {
+	public void setGL20 (GL20 gl20) {
 		this.gl20 = gl20;
 	}
 
 	@Override
-	public void setGL30(GL30 gl30) {
+	public void setGL30 (GL30 gl30) {
 		this.gl30 = gl30;
 	}
 
@@ -213,7 +218,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 	}
 
 	@Override
-	public GLVersion getGLVersion() {
+	public GLVersion getGLVersion () {
 		return glVersion;
 	}
 
@@ -281,7 +286,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 					Math.min(windowX + windowWidth, monitor.virtualX + mode.width)
 							- Math.max(windowX, monitor.virtualX))
 					* Math.max(0, Math.min(windowY + windowHeight, monitor.virtualY + mode.height)
-					- Math.max(windowY, monitor.virtualY));
+							- Math.max(windowY, monitor.virtualY));
 
 			if (bestOverlap < overlap) {
 				bestOverlap = overlap;
@@ -343,6 +348,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 
 	@Override
 	public boolean setFullscreenMode(DisplayMode displayMode) {
+		window.getInput().resetPollingStates();
 		Lwjgl3DisplayMode newMode = (Lwjgl3DisplayMode) displayMode;
 		if (isFullscreen()) {
 			Lwjgl3DisplayMode currentMode = (Lwjgl3DisplayMode) getDisplayMode();
@@ -357,33 +363,52 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 		} else {
 			// store window position so we can restore it when switching from fullscreen to windowed later
 			storeCurrentWindowPositionAndDisplayMode();
-
+			
 			// switch from windowed to fullscreen
 			GLFW.glfwSetWindowMonitor(window.getWindowHandle(), newMode.getMonitor(),
 					0, 0, newMode.width, newMode.height, newMode.refreshRate);
 		}
 		updateFramebufferInfo();
+
+		setVSync(window.getConfig().vSyncEnabled);
+
 		return true;
 	}
-
+	
 	private void storeCurrentWindowPositionAndDisplayMode() {
 		windowPosXBeforeFullscreen = window.getPositionX();
 		windowPosYBeforeFullscreen = window.getPositionY();
+		windowWidthBeforeFullscreen = logicalWidth;
+		windowHeightBeforeFullscreen = logicalHeight;
 		displayModeBeforeFullscreen = getDisplayMode();
 	}
 
 	@Override
 	public boolean setWindowedMode(int width, int height) {
+		window.getInput().resetPollingStates();
 		if (!isFullscreen()) {
+			if (width != logicalWidth || height != logicalHeight) {
+				//Center window
+				Lwjgl3Monitor monitor = (Lwjgl3Monitor) getMonitor();
+				GLFW.glfwGetMonitorWorkarea(monitor.monitorHandle, tmpBuffer, tmpBuffer2, tmpBuffer3, tmpBuffer4);
+				window.setPosition(tmpBuffer.get(0) + (tmpBuffer3.get(0) - width) / 2, tmpBuffer2.get(0) + (tmpBuffer4.get(0) - height) / 2);
+			}
 			GLFW.glfwSetWindowSize(window.getWindowHandle(), width, height);
 		} else {
 			if (displayModeBeforeFullscreen == null) {
 				storeCurrentWindowPositionAndDisplayMode();
 			}
-
-			GLFW.glfwSetWindowMonitor(window.getWindowHandle(), 0,
-					windowPosXBeforeFullscreen, windowPosYBeforeFullscreen, width, height,
-					displayModeBeforeFullscreen.refreshRate);
+			if (width != windowWidthBeforeFullscreen || height != windowHeightBeforeFullscreen) {
+				Lwjgl3Monitor monitor = (Lwjgl3Monitor) getMonitor();
+				GLFW.glfwGetMonitorWorkarea(monitor.monitorHandle, tmpBuffer, tmpBuffer2, tmpBuffer3, tmpBuffer4);
+				GLFW.glfwSetWindowMonitor(window.getWindowHandle(), 0,
+						tmpBuffer.get(0) + (tmpBuffer3.get(0) - width) / 2, tmpBuffer2.get(0) + (tmpBuffer4.get(0) - height) / 2, width, height,
+						displayModeBeforeFullscreen.refreshRate);
+			} else {
+				GLFW.glfwSetWindowMonitor(window.getWindowHandle(), 0,
+						windowPosXBeforeFullscreen, windowPosYBeforeFullscreen, width, height,
+						displayModeBeforeFullscreen.refreshRate);
+			}
 		}
 		updateFramebufferInfo();
 		return true;
@@ -413,6 +438,8 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 
 	@Override
 	public void setVSync(boolean vsync) {
+		window.getConfig().vSyncEnabled = vsync;
+
 		GLFW.glfwSwapInterval(vsync ? 1 : 0);
 	}
 

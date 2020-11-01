@@ -241,11 +241,13 @@ public interface Input {
 		public static final int F11 = 254;
 		public static final int F12 = 255;
 
+		public static final int MAX_KEYCODE = 255;
+
 		/** @return a human readable representation of the keycode. The returned value can be used in
 		 *         {@link Input.Keys#valueOf(String)} */
 		public static String toString (int keycode) {
 			if (keycode < 0) throw new IllegalArgumentException("keycode cannot be negative, keycode: " + keycode);
-			if (keycode > 255) throw new IllegalArgumentException("keycode cannot be greater than 255, keycode: " + keycode);
+			if (keycode > MAX_KEYCODE) throw new IllegalArgumentException("keycode cannot be greater than 255, keycode: " + keycode);
 			switch (keycode) {
 			// META* variables should not be used with this method.
 			case UNKNOWN:
@@ -672,18 +674,38 @@ public interface Input {
 	public boolean isKeyJustPressed (int key);
 
 	/** System dependent method to input a string of text. A dialog box will be created with the given title and the given text as a
-	 * message for the user. Once the dialog has been closed the provided {@link TextInputListener} will be called on the rendering
-	 * thread.
+	 * message for the user. Will use the Default keyboard type.
+	 * Once the dialog has been closed the provided {@link TextInputListener} will be called on the rendering thread.
 	 * 
 	 * @param listener The TextInputListener.
 	 * @param title The title of the text input dialog.
 	 * @param text The message presented to the user. */
 	public void getTextInput (TextInputListener listener, String title, String text, String hint);
 
-	/** Sets the on-screen keyboard visible if available.
+	/** System dependent method to input a string of text. A dialog box will be created with the given title and the given text as a
+	 * message for the user. Once the dialog has been closed the provided {@link TextInputListener} will be called on the rendering
+	 * thread.
+	 *
+	 * @param listener The TextInputListener.
+	 * @param title The title of the text input dialog.
+	 * @param text The message presented to the user.
+	 * @param type which type of keyboard we wish to display */
+	public void getTextInput (TextInputListener listener, String title, String text, String hint, OnscreenKeyboardType type);
+
+	/** Sets the on-screen keyboard visible if available. Will use the Default keyboard type.
 	 * 
 	 * @param visible visible or not */
 	public void setOnscreenKeyboardVisible (boolean visible);
+
+	/** Sets the on-screen keyboard visible if available.
+	 *
+	 * @param visible visible or not
+	 * @param type which type of keyboard we wish to display. Can be null when hiding */
+	public void setOnscreenKeyboardVisible (boolean visible, OnscreenKeyboardType type);
+
+	public enum OnscreenKeyboardType {
+		Default, NumberPad, PhonePad, Email, Password, URI
+	}
 
 	/** Vibrates for the given amount of time. Note that you'll need the permission
 	 * <code> <uses-permission android:name="android.permission.VIBRATE" /></code> in your manifest file in order for this to work.

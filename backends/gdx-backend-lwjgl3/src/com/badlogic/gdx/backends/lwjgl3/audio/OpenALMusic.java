@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,23 +16,23 @@
 
 package com.badlogic.gdx.backends.lwjgl3.audio;
 
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.FloatArray;
-import com.badlogic.gdx.utils.GdxRuntimeException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL11;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.FloatArray;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.SOFTDirectChannels.AL_DIRECT_CHANNELS_SOFT;
 
-/**
- * @author Nathan Sweet
- */
+/** @author Nathan Sweet */
 public abstract class OpenALMusic implements Music {
 	static private final int bufferSize = 4096 * 10;
 	static private final int bufferCount = 3;
@@ -42,7 +42,7 @@ public abstract class OpenALMusic implements Music {
 
 	private FloatArray renderedSecondsQueue = new FloatArray(bufferCount);
 
-	private final OpenALAudio audio;
+	private final OpenALLwjgl3Audio audio;
 	private IntBuffer buffers;
 	private int sourceID = -1;
 	private int format, sampleRate;
@@ -55,19 +55,19 @@ public abstract class OpenALMusic implements Music {
 
 	private OnCompletionListener onCompletionListener;
 
-	public OpenALMusic(OpenALAudio audio, FileHandle file) {
+	public OpenALMusic (OpenALLwjgl3Audio audio, FileHandle file) {
 		this.audio = audio;
 		this.file = file;
 		this.onCompletionListener = null;
 	}
 
-	protected void setup(int channels, int sampleRate) {
+	protected void setup (int channels, int sampleRate) {
 		this.format = channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 		this.sampleRate = sampleRate;
-		maxSecondsPerBuffer = (float) bufferSize / (bytesPerSample * channels * sampleRate);
+		maxSecondsPerBuffer = (float)bufferSize / (bytesPerSample * channels * sampleRate);
 	}
 
-	public void play() {
+	public void play () {
 		if (audio.noDevice) return;
 		if (sourceID == -1) {
 			sourceID = audio.obtainSource(true);
@@ -107,7 +107,7 @@ public abstract class OpenALMusic implements Music {
 		}
 	}
 
-	public void stop() {
+	public void stop () {
 		if (audio.noDevice) return;
 		if (sourceID == -1) return;
 		audio.music.removeValue(this, true);
@@ -119,47 +119,47 @@ public abstract class OpenALMusic implements Music {
 		isPlaying = false;
 	}
 
-	public void pause() {
+	public void pause () {
 		if (audio.noDevice) return;
 		if (sourceID != -1) alSourcePause(sourceID);
 		isPlaying = false;
 	}
 
-	public boolean isPlaying() {
+	public boolean isPlaying () {
 		if (audio.noDevice) return false;
 		if (sourceID == -1) return false;
 		return isPlaying;
 	}
 
-	public void setLooping(boolean isLooping) {
+	public void setLooping (boolean isLooping) {
 		this.isLooping = isLooping;
 	}
 
-	public boolean isLooping() {
+	public boolean isLooping () {
 		return isLooping;
 	}
 
-	public void setVolume(float volume) {
+	public void setVolume (float volume) {
 		this.volume = volume;
 		if (audio.noDevice) return;
 		if (sourceID != -1) alSourcef(sourceID, AL_GAIN, volume);
 	}
 
-	public float getVolume() {
+	public float getVolume () {
 		return this.volume;
 	}
 
-	public void setPan(float pan, float volume) {
+	public void setPan (float pan, float volume) {
 		this.volume = volume;
 		this.pan = pan;
 		if (audio.noDevice) return;
 		if (sourceID == -1) return;
-		alSource3f(sourceID, AL_POSITION, MathUtils.cos((pan - 1) * MathUtils.PI / 2), 0,
-				MathUtils.sin((pan + 1) * MathUtils.PI / 2));
+		alSource3f(sourceID, AL_POSITION, MathUtils.cos((pan - 1) * MathUtils.HALF_PI), 0,
+			MathUtils.sin((pan + 1) * MathUtils.HALF_PI));
 		alSourcef(sourceID, AL_GAIN, volume);
 	}
 
-	public void setPosition(float position) {
+	public void setPosition (float position) {
 		if (audio.noDevice) return;
 		if (sourceID == -1) return;
 		boolean wasPlaying = isPlaying;
@@ -197,39 +197,33 @@ public abstract class OpenALMusic implements Music {
 		}
 	}
 
-	public float getPosition() {
+	public float getPosition () {
 		if (audio.noDevice) return 0;
 		if (sourceID == -1) return 0;
 		return renderedSeconds + alGetSourcef(sourceID, AL11.AL_SEC_OFFSET);
 	}
 
-	/**
-	 * Fills as much of the buffer as possible and returns the number of bytes filled. Returns <= 0 to indicate the end of the
-	 * stream.
-	 */
-	abstract public int read(byte[] buffer);
+	/** Fills as much of the buffer as possible and returns the number of bytes filled. Returns <= 0 to indicate the end of the
+	 * stream. */
+	abstract public int read (byte[] buffer);
 
-	/**
-	 * Resets the stream to the beginning.
-	 */
-	abstract public void reset();
+	/** Resets the stream to the beginning. */
+	abstract public void reset ();
 
-	/**
-	 * By default, does just the same as reset(). Used to add special behaviour in Ogg.Music.
-	 */
-	protected void loop() {
+	/** By default, does just the same as reset(). Used to add special behaviour in Ogg.Music. */
+	protected void loop () {
 		reset();
 	}
 
-	public int getChannels() {
+	public int getChannels () {
 		return format == AL_FORMAT_STEREO16 ? 2 : 1;
 	}
 
-	public int getRate() {
+	public int getRate () {
 		return sampleRate;
 	}
 
-	public void update() {
+	public void update () {
 		if (audio.noDevice) return;
 		if (sourceID == -1) return;
 
@@ -254,7 +248,7 @@ public abstract class OpenALMusic implements Music {
 		if (isPlaying && alGetSourcei(sourceID, AL_SOURCE_STATE) != AL_PLAYING) alSourcePlay(sourceID);
 	}
 
-	private boolean fill(int bufferID) {
+	private boolean fill (int bufferID) {
 		tempBuffer.clear();
 		int length = read(tempBytes);
 		if (length <= 0) {
@@ -269,7 +263,7 @@ public abstract class OpenALMusic implements Music {
 				return false;
 		}
 		float previousLoadedSeconds = renderedSecondsQueue.size > 0 ? renderedSecondsQueue.first() : 0;
-		float currentBufferSeconds = maxSecondsPerBuffer * (float) length / (float) bufferSize;
+		float currentBufferSeconds = maxSecondsPerBuffer * (float)length / (float)bufferSize;
 		renderedSecondsQueue.insert(0, previousLoadedSeconds + currentBufferSeconds);
 
 		tempBuffer.put(tempBytes, 0, length).flip();
@@ -277,7 +271,7 @@ public abstract class OpenALMusic implements Music {
 		return true;
 	}
 
-	public void dispose() {
+	public void dispose () {
 		stop();
 		if (audio.noDevice) return;
 		if (buffers == null) return;
@@ -286,11 +280,11 @@ public abstract class OpenALMusic implements Music {
 		onCompletionListener = null;
 	}
 
-	public void setOnCompletionListener(OnCompletionListener listener) {
+	public void setOnCompletionListener (OnCompletionListener listener) {
 		onCompletionListener = listener;
 	}
 
-	public int getSourceId() {
+	public int getSourceId () {
 		return sourceID;
 	}
 }

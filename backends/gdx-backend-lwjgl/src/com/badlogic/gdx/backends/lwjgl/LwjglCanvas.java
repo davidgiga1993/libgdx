@@ -21,10 +21,10 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.backends.lwjgl.audio.LwjglAudio;
 import org.lwjgl.opengl.AWTGLCanvas;
 import org.lwjgl.opengl.Display;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Audio;
@@ -35,13 +35,14 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
+import com.badlogic.gdx.backends.lwjgl.audio.OpenALLwjglAudio;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 import java.awt.Canvas;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -52,11 +53,11 @@ import java.awt.geom.AffineTransform;
  * application. All OpenGL calls are done on the EDT. Note that you may need to call {@link #stop()} or a Swing application may
  * deadlock on System.exit due to how LWJGL and/or Swing deal with shutdown hooks.
  * @author Nathan Sweet */
-public class LwjglCanvas implements Application {
+public class LwjglCanvas implements LwjglApplicationBase {
 	static boolean isWindows = System.getProperty("os.name").contains("Windows");
 
 	LwjglGraphics graphics;
-	OpenALAudio audio;
+	LwjglAudio audio;
 	LwjglFiles files;
 	LwjglInput input;
 	LwjglNet net;
@@ -144,9 +145,9 @@ public class LwjglCanvas implements Application {
 			}
 		};
 		graphics.setVSync(config.vSyncEnabled);
-		if (!LwjglApplicationConfiguration.disableAudio) audio = new OpenALAudio();
+		if (!LwjglApplicationConfiguration.disableAudio) audio = createAudio(config);
 		files = new LwjglFiles();
-		input = new LwjglInput();
+		input = createInput(config);
 		net = new LwjglNet(config);
 		this.listener = listener;
 
@@ -217,6 +218,11 @@ public class LwjglCanvas implements Application {
 
 			start();
 		} catch (Exception ex) {
+			try {
+				Display.destroy();
+				if (audio != null) audio.dispose();
+			} catch (Throwable ignored) {
+			}
 			stopped();
 			exception(ex);
 			return;
@@ -236,19 +242,7 @@ public class LwjglCanvas implements Application {
 					Display.processMessages();
 					if (cursor != null || !isWindows) canvas.setCursor(cursor);
 
-					boolean shouldRender = false;
-
-					int width = Math.max(1, graphics.getWidth());
-					int height = Math.max(1, graphics.getHeight());
-					if (lastWidth != width || lastHeight != height) {
-						lastWidth = width;
-						lastHeight = height;
-						Display.setLocation(0, 0);
-						Gdx.gl.glViewport(0, 0, width, height);
-						resize(width, height);
-						listener.resize(width, height);
-						shouldRender = true;
-					}
+					boolean shouldRender = checkResize();
 
 					if (executeRunnables()) shouldRender = true;
 
@@ -259,6 +253,8 @@ public class LwjglCanvas implements Application {
 					shouldRender |= graphics.shouldRender();
 					input.processEvents();
 					if (audio != null) audio.update();
+
+					if (checkResize()) shouldRender = true;
 
 					if (shouldRender) {
 						graphics.updateTime();
@@ -272,6 +268,24 @@ public class LwjglCanvas implements Application {
 					exception(ex);
 				}
 				EventQueue.invokeLater(this);
+			}
+
+			private boolean checkResize () {
+				Container parent = canvas.getParent();
+				if (parent != null && (canvas.getWidth() != parent.getWidth() || canvas.getHeight() != parent.getHeight()))
+					canvas.setSize(parent.getWidth(), parent.getHeight());
+
+				int width = Math.max(1, graphics.getWidth());
+				int height = Math.max(1, graphics.getHeight());
+				if (lastWidth == width && lastHeight == height) return false;
+				lastWidth = width;
+				lastHeight = height;
+
+				Display.setLocation(0, 0);
+				Gdx.gl.glViewport(0, 0, width, height);
+				resize(width, height);
+				listener.resize(width, height);
+				return true;
 			}
 		});
 	}
@@ -327,6 +341,10 @@ public class LwjglCanvas implements Application {
 	protected void stopped () {
 	}
 
+	/** Called after dispose is complete. */
+	protected void disposed () {
+	}
+
 	public void stop () {
 		EventQueue.invokeLater(new Runnable() {
 			public void run () {
@@ -346,6 +364,7 @@ public class LwjglCanvas implements Application {
 					if (audio != null) audio.dispose();
 				} catch (Throwable ignored) {
 				}
+				disposed();
 			}
 		});
 	}
@@ -471,5 +490,15 @@ public class LwjglCanvas implements Application {
 	 * runnable later throws an exception. Default is false. */
 	public void setPostedRunnableStacktraces (boolean postedRunnableStacktraces) {
 		this.postedRunnableStacktraces = postedRunnableStacktraces;
+	}
+
+	@Override
+	public LwjglAudio createAudio (LwjglApplicationConfiguration config) {
+		return new OpenALLwjglAudio();
+	}
+
+	@Override
+	public LwjglInput createInput (LwjglApplicationConfiguration config) {
+		return new DefaultLwjglInput();
 	}
 }
