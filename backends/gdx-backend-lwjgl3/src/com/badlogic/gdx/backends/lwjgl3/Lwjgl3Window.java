@@ -155,9 +155,9 @@ public class Lwjgl3Window implements Disposable {
 		this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
 	}
 
-	void create(long windowHandle, LwjglWinMultitouch multitouchInput) {
+	void create(long windowHandle) {
 		this.windowHandle = windowHandle;
-		this.input = application.createInput(this, multitouchInput);
+		this.input = application.createInput(this);
 		this.graphics = new Lwjgl3Graphics(this);
 
 		GLFW.glfwSetWindowFocusCallback(windowHandle, focusCallback);
@@ -378,7 +378,7 @@ public class Lwjgl3Window implements Disposable {
 
 	void windowHandleChanged(long windowHandle) {
 		this.windowHandle = windowHandle;
-		input.windowHandleChanged();
+		input.windowHandleChanged(windowHandle);
 	}
 
 	boolean update() {

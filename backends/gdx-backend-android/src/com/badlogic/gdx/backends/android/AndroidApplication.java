@@ -47,7 +47,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	protected AndroidGraphics graphics;
-	protected IAndroidInput input;
+	protected AndroidInput input;
 	protected AndroidAudio audio;
 	protected AndroidFiles files;
 	protected AndroidNet net;
@@ -183,14 +183,14 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 			AndroidVisibilityListener vlistener = new AndroidVisibilityListener();
 			vlistener.createListener(this);
 		}
-		
+
 		// detect an already connected bluetooth keyboardAvailable
 		if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)
 			input.setKeyboardAvailable(true);
 	}
 
-	protected IAndroidInput createInput(AndroidApplication androidApplication, Context context, Object view, AndroidApplicationConfiguration config) {
-		return AndroidInputFactory.newAndroidInput(androidApplication, context, view, config);
+	protected AndroidInput createInput(AndroidApplication androidApplication, Context context, Object view, AndroidApplicationConfiguration config) {
+		return new DefaultAndroidInput(androidApplication, context, view, config);
 	}
 
 	protected FrameLayout.LayoutParams createLayoutParams() {
@@ -313,7 +313,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	@Override
-	public AndroidInput getInput () {
+	public AndroidInput getInput() {
 		return input;
 	}
 
@@ -327,8 +327,6 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		return graphics;
 	}
 
-	@Override
-	public IAndroidInput getInput() {
 	public Net getNet() {
 		return net;
 	}
@@ -515,12 +513,12 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	}
 
 	@Override
-	public AndroidAudio createAudio (Context context, AndroidApplicationConfiguration config) {
+	public AndroidAudio createAudio(Context context, AndroidApplicationConfiguration config) {
 		return new DefaultAndroidAudio(context, config);
 	}
 
 	@Override
-	public AndroidInput createInput (Application activity, Context context, Object view, AndroidApplicationConfiguration config) {
+	public AndroidInput createInput(Application activity, Context context, Object view, AndroidApplicationConfiguration config) {
 		return new DefaultAndroidInput(this, this, graphics.view, config);
 	}
 }

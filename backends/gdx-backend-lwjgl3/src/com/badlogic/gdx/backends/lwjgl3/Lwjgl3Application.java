@@ -17,16 +17,14 @@
 package com.badlogic.gdx.backends.lwjgl3;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.backends.lwjgl3.audio.OpenALAudio;
-import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio;
 import com.badlogic.gdx.backends.lwjgl3.audio.Lwjgl3Audio;
 import com.badlogic.gdx.backends.lwjgl3.audio.OpenALLwjgl3Audio;
+import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.utils.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.Callback;
 
@@ -393,7 +391,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 
 	void createWindow(Lwjgl3Window window, Lwjgl3ApplicationConfiguration config, long sharedContext) {
 		long windowHandle = createGlfwWindow(config, sharedContext);
-		window.create(windowHandle, multitouchInput);
+		window.create(windowHandle);
 		window.setVisible(config.initialVisible);
 
 		for (int i = 0; i < 2; i++) {
