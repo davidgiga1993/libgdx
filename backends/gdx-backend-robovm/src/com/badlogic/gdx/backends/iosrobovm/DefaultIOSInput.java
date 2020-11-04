@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -88,7 +88,7 @@ public class DefaultIOSInput implements IOSInput {
 
 	private static final NSObjectWrapper<UITouch> UI_TOUCH_WRAPPER = new NSObjectWrapper<UITouch>(UITouch.class);
 	static final NSObjectWrapper<UIAcceleration> UI_ACCELERATION_WRAPPER = new NSObjectWrapper<UIAcceleration>(UIAcceleration.class);
-	
+
 	IOSApplication app;
 	IOSApplicationConfiguration config;
 	int[] deltaX = new int[MAX_TOUCHES];
@@ -159,7 +159,7 @@ public class DefaultIOSInput implements IOSInput {
 			//setupMagnetometer();
 		}
 	}
-	
+
 	protected void setupAccelerometer () {
 		if (config.useAccelerometer) {
 			accelerometerDelegate = new UIAccelerometerDelegateAdapter() {
@@ -196,7 +196,7 @@ public class DefaultIOSInput implements IOSInput {
 //			motionManager.startAccelerometerUpdates(new NSOperationQueue(), accelVoid);
 //		}
 //	}
-	
+
 	// need to retain a reference so GC doesn't get right of the
 	// object passed to the native thread
 //	VoidBlock2<CMMagnetometerData, NSError> magnetVoid = null;
@@ -212,7 +212,7 @@ public class DefaultIOSInput implements IOSInput {
 //		};
 //		motionManager.startMagnetometerUpdates(new NSOperationQueue(), magnetVoid);
 //	}
-	
+
 //	private void updateAccelerometer (CMAccelerometerData data) {
 //		float x = (float) data.getAcceleration().x() * 10f;
 //		float y = (float) data.getAcceleration().y() * 10f;
@@ -271,7 +271,7 @@ public class DefaultIOSInput implements IOSInput {
 	public float getAccelerometerZ () {
 		return acceleration[2];
 	}
-	
+
 
 	@Override
 	public float getAzimuth () {
@@ -413,7 +413,7 @@ public class DefaultIOSInput implements IOSInput {
 	public void getTextInput(TextInputListener listener, String title, String text, String hint, OnscreenKeyboardType type) {
 		UIAlertController uiAlertController = buildUIAlertController(listener, title, text, hint, type);
 		app.getUIViewController().presentViewController(uiAlertController, true, null);
-	}	
+	}
 
 	// hack for software keyboard support
 	// uses a hidden textfield to capture input
@@ -512,12 +512,12 @@ public class DefaultIOSInput implements IOSInput {
 	public void setKeyboardCloseOnReturnKey (boolean shouldClose) {
 		keyboardCloseOnReturn = shouldClose;
 	}
-	
+
 	public UITextField getKeyboardTextField () {
 		if (textfield == null) createDefaultTextField();
 		return textfield;
 	}
-	
+
 	private void createDefaultTextField () {
 		textfield = new UITextField(new CGRect(10, 10, 100, 50));
 		//Parameters
@@ -532,7 +532,7 @@ public class DefaultIOSInput implements IOSInput {
 		textfield.setText("x");
 		app.getUIViewController().getView().addSubview(textfield);
 	}
-	
+
 	/** Builds an {@link UIAlertController} with an added {@link UITextField} for inputting text.
 	 * @param listener Text input listener
 	 * @param title Dialog title
@@ -847,10 +847,19 @@ public class DefaultIOSInput implements IOSInput {
 		public static native @MachineSizedUInt long count (@Pointer long thiz);
 	}
 
+	/**
+	 * Returns the scaling factor that should be applied to the touch position
+	 * @return Scaling factor
+	 */
+	protected float getTouchScalingFactor()	{
+		return 1f;
+	}
+
 	private void toTouchEvents (long touches) {
 		long array = NSSetExtensions.allObjects(touches);
 		int length = (int)NSArrayExtensions.count(array);
 		final IOSScreenBounds screenBounds = app.getScreenBounds();
+		float scale = getTouchScalingFactor();
 		for (int i = 0; i < length; i++) {
 			long touchHandle = NSArrayExtensions.objectAtIndex$(array, i);
 			UITouch touch = UI_TOUCH_WRAPPER.wrap(touchHandle);
@@ -858,8 +867,8 @@ public class DefaultIOSInput implements IOSInput {
 			// Get and map the location to our drawing space
 			{
 				CGPoint loc = touch.getLocationInView(app.graphics.view);
-				locX = (int)(loc.getX() - screenBounds.x);
-				locY = (int)(loc.getY() - screenBounds.y);
+				locX = (int)(loc.getX() * scale - screenBounds.x);
+				locY = (int)(loc.getY() * scale - screenBounds.y);
 				// app.debug("IOSInput","pos= "+loc+"  bounds= "+bounds+" x= "+locX+" locY= "+locY);
 			}
 
