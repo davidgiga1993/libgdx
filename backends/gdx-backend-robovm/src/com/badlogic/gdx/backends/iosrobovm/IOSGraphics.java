@@ -215,7 +215,7 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate, 
 			gl30 = null;
 		}
 
-		view = new GLKView(new CGRect(0, 0, screenBounds.width, screenBounds.height), context) {
+		view = new GLKView(new CGRect(0, 0, screenBounds.backBufferWidth, screenBounds.backBufferHeight), context) {
 			@Method(selector = "touchesBegan:withEvent:")
 			public void touchesBegan (@Pointer long touches, UIEvent event) {
 				IOSGraphics.this.input.onTouch(touches);
@@ -335,8 +335,8 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate, 
 		gl20.glViewport(IOSGLES20.x, IOSGLES20.y, IOSGLES20.width, IOSGLES20.height);
 
 		if (!created) {
-			final int width = screenBounds.width;
-			final int height = screenBounds.height;
+			final int width = screenBounds.backBufferWidth;
+			final int height = screenBounds.backBufferHeight;
 			gl20.glViewport(0, 0, width, height);
 
 			String versionString = gl20.glGetString(GL20.GL_VERSION);
