@@ -125,10 +125,10 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate, 
 			final IOSScreenBounds newBounds = app.computeBounds();
 			graphics.screenBounds = newBounds;
 			// Layout may happen without bounds changing, don't trigger resize in that case
-			if (graphics.created && (newBounds.width != oldBounds.width || newBounds.height != oldBounds.height)) {
+			if (graphics.created && (newBounds.backBufferWidth != oldBounds.backBufferWidth || newBounds.backBufferHeight != oldBounds.backBufferHeight)) {
 				graphics.makeCurrent();
 				graphics.updateSafeInsets();
-				app.listener.resize(newBounds.width, newBounds.height);
+				app.listener.resize(newBounds.backBufferWidth, newBounds.backBufferHeight);
 			}
 
 		}
@@ -513,7 +513,7 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate, 
 
 	@Override
 	public DisplayMode getDisplayMode () {
-		return new IOSDisplayMode(getWidth(), getHeight(), config.preferredFramesPerSecond, bufferFormat.r + bufferFormat.g
+		return new IOSDisplayMode(getBackBufferWidth(), getBackBufferHeight(), config.preferredFramesPerSecond, bufferFormat.r + bufferFormat.g
 			+ bufferFormat.b + bufferFormat.a);
 	}
 
