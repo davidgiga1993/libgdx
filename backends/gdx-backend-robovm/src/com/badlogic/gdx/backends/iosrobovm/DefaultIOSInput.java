@@ -872,8 +872,8 @@ public class DefaultIOSInput implements IOSInput {
 			// Get and map the location to our drawing space (e.g. subtract the status bar)
 			{
 				CGPoint loc = touch.getLocationInView(app.graphics.view);
-				locX = (int) (loc.getX() * scale - screenBounds.x);
-				locY = (int) (loc.getY() * scale - screenBounds.y);
+				locX = (int) ((loc.getX() - screenBounds.x) * scale);
+				locY = (int) ((loc.getY() - screenBounds.y) * scale);
 				// app.debug("IOSInput","pos= "+loc+"  bounds= "+bounds+" x= "+locX+" locY= "+locY);
 			}
 
