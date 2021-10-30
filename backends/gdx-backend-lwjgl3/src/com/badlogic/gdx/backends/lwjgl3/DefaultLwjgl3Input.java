@@ -180,11 +180,10 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 		registerLwjglTouchHandler();
 	}
 
-	protected void registerLwjglTouchHandler() {
+	protected void registerLwjglTouchHandler () {
 		GLFW.glfwSetCursorPosCallback(window.getWindowHandle(), cursorPosCallback);
 		GLFW.glfwSetMouseButtonCallback(window.getWindowHandle(), mouseButtonCallback);
 	}
-
 
 	@Override
 	public void update () {
