@@ -2,15 +2,41 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.badlogicgames.gdx</groupId>
+    <groupId>org.devcore.gdx</groupId>
     <artifactId>gdx-parent</artifactId>
-    <version>1.10.1-SNAPSHOT</version>
+    <version>1.10.1-am1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>gdx-backend-lwjgl3</artifactId>
   <packaging>jar</packaging>
   <name>libGDX LWJGL 3 Backend</name>
+
+  <repositories>
+    <repository>
+      <id>dev-core-public</id>
+      <name>Public dev-core repo</name>
+      <url>https://dev-core.org/maven-repo-pub</url>
+    </repository>
+    <repository>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <layout>default</layout>
+      <url>https://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>nexus</id>
+      <name>Nexus repo for snapshots</name>
+      <layout>default</layout>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -314,6 +340,12 @@
         <groupId>org.jcraft</groupId>
         <artifactId>jorbis</artifactId>
         <version>0.0.17</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.devcore</groupId>
+      <artifactId>win-multitouch</artifactId>
+      <version>1.1</version>
     </dependency>
   </dependencies>
 

@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.devcore.gdx</groupId>
+  <groupId>org.devcore.gdx</groupId>
   <artifactId>gdx-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.10.0-am1</version>
+  <version>1.10.1-am1</version>
 
   <name>libGDX Parent</name>
   <description>Android/Desktop/iOS/HTML5 game development framework.</description>
@@ -39,12 +39,11 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <android.version>30</android.version>
-    <!-- Libgdx version this fork is based on -->
-    <libgdx.base.version>1.10.0</libgdx.base.version>
+    <libgdx.base.version>1.10.1-SNAPSHOT</libgdx.base.version>
     <gwt.version>2.8.2</gwt.version>
     <lwjgl.version>2.9.3</lwjgl.version>
     <lwjgl3.version>3.3.0-SNAPSHOT</lwjgl3.version>
-    <robovm.version>2.3.12</robovm.version>
+    <robovm.version>2.3.14</robovm.version>
   </properties>
 
   <modules>
@@ -53,7 +52,7 @@
     <module>backends/gdx-backend-android</module>
     <module>backends/gdx-backend-robovm</module>
     <module>backends/gdx-backend-lwjgl</module>
-    <module>backends/gdx-backend-lwjgl3</module>    
+    <module>backends/gdx-backend-lwjgl3</module>
     <module>backends/gdx-backends-gwt</module>
     <module>backends/gdx-backend-headless</module>
     <module>extensions/gdx-tools</module>
@@ -61,7 +60,7 @@
     <module>extensions/gdx-bullet</module>
     <module>extensions/gdx-bullet/jni/maven</module>
     <module>extensions/gdx-freetype</module>
-    <module>extensions/gdx-freetype/jni/maven</module>    
+    <module>extensions/gdx-freetype/jni/maven</module>
   </modules>
 
   <build>
@@ -85,7 +84,7 @@
               </configuration>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -150,6 +149,4 @@
       </plugin>
     </plugins>
   </build>
-</project>
-    </build>
 </project>
