@@ -38,8 +38,8 @@ public class DragAndDrop {
 	boolean removeDragActor;
 	Target target;
 	boolean isValidTarget;
-	final Array<Target> targets = new Array();
-	final ObjectMap<Source, DragListener> sourceListeners = new ObjectMap();
+	final Array<Target> targets = new Array(8);
+	final ObjectMap<Source, DragListener> sourceListeners = new ObjectMap(8);
 	private float tapSquareSize = 8;
 	private int button;
 	float dragActorX = 0, dragActorY = 0;
@@ -145,7 +145,13 @@ public class DragAndDrop {
 				activePointer = -1;
 				if (payload == null) return;
 
-				if (System.currentTimeMillis() < dragValidTime) isValidTarget = false;
+				if (System.currentTimeMillis() < dragValidTime)
+					isValidTarget = false;
+				else if (!isValidTarget && target != null) {
+					float stageX = event.getStageX() + touchOffsetX, stageY = event.getStageY() + touchOffsetY;
+					target.actor.stageToLocalCoordinates(tmpVector.set(stageX, stageY));
+					isValidTarget = target.drag(source, payload, tmpVector.x, tmpVector.y, pointer);
+				}
 				if (dragActor != null && removeDragActor) dragActor.remove();
 				if (isValidTarget) {
 					float stageX = event.getStageX() + touchOffsetX, stageY = event.getStageY() + touchOffsetY;
@@ -185,7 +191,7 @@ public class DragAndDrop {
 		targets.clear();
 		for (Entry<Source, DragListener> entry : sourceListeners.entries())
 			entry.key.actor.removeCaptureListener(entry.value);
-		sourceListeners.clear();
+		sourceListeners.clear(8);
 	}
 
 	/** Cancels the touch focus for everything except the specified source. */

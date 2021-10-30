@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.devcore.gdx</groupId>
+        <groupId>com.badlogicgames.gdx</groupId>
         <artifactId>gdx-parent</artifactId>
-        <version>1.10.0-am1</version>
+        <version>1.10.1-SNAPSHOT</version>
         <relativePath>../../../../</relativePath>
     </parent>
     
@@ -22,7 +22,7 @@
     <build>
         <sourceDirectory>src</sourceDirectory>
         
-        <plugins>
+        <plugins>            
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.6</version>
@@ -34,11 +34,12 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <resources>
+                            <resources>                                
                                 <resource><directory>${basedir}/../../libs/linux64</directory></resource>
                                 <resource><directory>${basedir}/../../libs/linuxarm32</directory></resource>
                                 <resource><directory>${basedir}/../../libs/linuxarm64</directory></resource>
                                 <resource><directory>${basedir}/../../libs/macosx64</directory></resource>
+                                <resource><directory>${basedir}/../../libs/macosxarm64</directory></resource>
                                 <resource><directory>${basedir}/../../libs/windows32</directory></resource>
                                 <resource><directory>${basedir}/../../libs/windows64</directory></resource>
                             </resources>
@@ -127,7 +128,7 @@
                     <descriptors>
                         <descriptor>desktop.xml</descriptor>
                         <descriptor>x86.xml</descriptor>
-                        <descriptor>x86_64.xml</descriptor>
+                        <descriptor>x86_64.xml</descriptor>                        
                         <descriptor>armeabi-v7a.xml</descriptor>
                         <descriptor>arm64-v8a.xml</descriptor>
                         <descriptor>ios.xml</descriptor>
