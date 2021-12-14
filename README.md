@@ -1,8 +1,11 @@
 # About
-This fork of libgdx is designed for building corss platform applications with relativly fast refresh rates (compared to a regular app).
+This fork of libgdx is designed for building cross platform applications (not games) which have a high requirement on battery lifetime and refresh rate.
 
 It has quite a few hard design changes compared to the original libgdx which require more attention while developing but reward you with a super fast UI response.
 
+
+# Additions
+- Windows multitouch support
 
 # Changes
 
@@ -12,7 +15,7 @@ This causes (depending on the frame rate) unnecessary delays and increases the l
 In this fork all input events are directly passed to the listeners from the OS input thread.
 Therefore you need to make sure your application can properly handle inputs from a non rendering thread.
 
-It is now also possible to change the input processing implementation from without your application - no need to rebuild libgdx.
+It is now also possible to change the input processing implementation from within your application - no need to rebuild libgdx.
 
 # Fixes
 ## Android 6.0 
