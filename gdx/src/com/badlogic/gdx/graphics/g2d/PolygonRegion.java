@@ -16,15 +16,12 @@
 
 package com.badlogic.gdx.graphics.g2d;
 
-/**
- * Defines a polygon shape on top of a texture region to avoid drawing transparent pixels.
+/** Defines a polygon shape on top of a texture region to avoid drawing transparent pixels.
  *
  * @author Stefan Bachmann
  * @author Nathan Sweet
- * @see PolygonRegionLoader
- */
-public class PolygonRegion
-{
+ * @see PolygonRegionLoader */
+public class PolygonRegion {
 	final float[] textureCoords; // texture coordinates in atlas coordinates
 	final float[] vertices; // pixel coordinates relative to source image.
 	final short[] triangles;
@@ -34,10 +31,8 @@ public class PolygonRegion
 	 * TextureRegion can come from an atlas.
 	 *
 	 * @param region the region used for drawing
-	 * @param vertices contains 2D polygon coordinates in pixels relative to source region
-	 */
-	public PolygonRegion(TextureRegion region, float[] vertices, short[] triangles)
-	{
+	 * @param vertices contains 2D polygon coordinates in pixels relative to source region */
+	public PolygonRegion (TextureRegion region, float[] vertices, short[] triangles) {
 		this.region = region;
 		this.vertices = vertices;
 		this.triangles = triangles;
@@ -49,13 +44,10 @@ public class PolygonRegion
 		int width = region.regionWidth;
 		int height = region.regionHeight;
 
-
-		for (int i = 0; i < vertices.length; i++)
-		{
+		for (int i = 0; i < vertices.length; i++) {
 			// Android 6.0 has issues on certain chipsets with this algorithm
 			// therefore special treatment is required
-			if (i >= vertices.length)
-			{
+			if (i >= vertices.length) {
 				break;
 			}
 
@@ -65,26 +57,20 @@ public class PolygonRegion
 		}
 	}
 
-	/**
-	 * Returns the vertices in local space.
-	 */
-	public float[] getVertices()
-	{
+	/** Returns the vertices in local space. */
+	public float[] getVertices () {
 		return vertices;
 	}
 
-	public short[] getTriangles()
-	{
+	public short[] getTriangles () {
 		return triangles;
 	}
 
-	public float[] getTextureCoords()
-	{
+	public float[] getTextureCoords () {
 		return textureCoords;
 	}
 
-	public TextureRegion getRegion()
-	{
+	public TextureRegion getRegion () {
 		return region;
 	}
 }
