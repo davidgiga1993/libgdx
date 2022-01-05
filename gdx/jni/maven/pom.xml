@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.devcore.gdx</groupId>
         <artifactId>gdx-parent</artifactId>
-        <version>1.10.1-am1</version>
+        <version>1.10.1-bm1</version>
         <relativePath>../../..</relativePath>
     </parent>
     
     <artifactId>gdx-platform</artifactId>
     <packaging>jar</packaging>
     <name>libGDX Native Libraries</name>
-    
+
     <properties>
         <base.url>https://libgdx-nightlies.s3.eu-central-1.amazonaws.com/libgdx-natives</base.url>
     </properties>
