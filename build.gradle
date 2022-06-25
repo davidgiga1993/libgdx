@@ -13,24 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-
-apply from: "gradle/dependencies.gradle"
-
 buildscript {
     apply from: "gradle/dependencies.gradle"
 
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath "com.diffplug.spotless:spotless-plugin-gradle:${versions.spotless}"
-        classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:2.2.0"
+        classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:2.3.1"
+    }
+}
+
+plugins {
+    id "de.undercouch.download" version "5.0.1"
+}
+
+apply from: "gradle/dependencies.gradle"
+
+ext {
+    isReleaseBuild = {
+        return project.hasProperty("RELEASE")
+    }
+
+    getReleaseRepositoryUrl = {
+        return project.hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+                : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    }
+
+    getSnapshotRepositoryUrl = {
+        return project.hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+                : "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+
+    getRepositoryUsername = {
+        return project.hasProperty('MAVEN_USERNAME') ? MAVEN_USERNAME : ""
+    }
+
+    getRepositoryPassword = {
+        return project.hasProperty('MAVEN_PASSWORD') ? MAVEN_PASSWORD : ""
     }
 }
 
 allprojects {
     group = 'com.badlogicgames.gdx'
-    version = '1.10.0-SNAPSHOT'
+    version = project.getProperty('version') + (isReleaseBuild() ? "" : "-SNAPSHOT")
 
     buildscript {
         repositories {
@@ -55,19 +83,38 @@ allprojects {
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
     }
-
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+    }
     tasks.withType(Test) {
         systemProperty 'file.encoding', 'UTF-8'
+    }
+
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none,-missing', '-quiet')
+        }
+    }
+
+    if (JavaVersion.current().isJava9Compatible()) {
+        tasks.withType(Javadoc) {
+            options.addStringOption("-release", "8");
+        }
     }
 }
 
 configure(subprojects - project(":tests:gdx-tests-android")) {
-    apply plugin: "java"
+    apply plugin: "java-library"
     apply plugin: "com.diffplug.spotless"
 
     compileJava {
         options.fork = true
         options.incremental = true
+    }
+    
+    java {
+        withJavadocJar()
+        withSourcesJar()
     }
 
     spotless {
@@ -126,11 +173,59 @@ configure(subprojects - project(":backends") - project(":extensions") - project(
     }
 }
 
-ant.importBuild("fetch.xml") { antTargetName ->
-    "ant-task-" + antTargetName
-}
-task fetchNatives(dependsOn: "ant-task-all"){
+task setupExternalNativesDirs() {
     doLast {
+        file("build").mkdir();
+        file("extensions/gdx-lwjgl3-angle/res").mkdirs();
+        file("extensions/gdx-lwjgl3-glfw-awt-macos/res/macosx64").mkdirs();
+        file("extensions/gdx-lwjgl3-glfw-awt-macos/res/macosarm64").mkdirs();
     }
+    outputs.upToDateWhen { false }
 }
 
+task fetchAngleNativesZIP(dependsOn: setupExternalNativesDirs, type: Download) {
+    src 'https://raw.githubusercontent.com/libgdx/gdx-angle-natives/master/gdx-angle-natives.zip'
+    dest 'build/gdx-angle-natives.zip'
+    onlyIfModified true
+    useETag "all"
+}
+
+task fetchGlfwAWT(dependsOn: setupExternalNativesDirs, type: Download) {
+    src 'https://raw.githubusercontent.com/badlogic/glfw/master/libglfw.dylib'
+    dest 'extensions/gdx-lwjgl3-glfw-awt-macos/res/macosx64/libglfw.dylib'
+    onlyIfModified true
+    useETag "all"
+}
+
+task fetchGlfwAWTARM64(dependsOn: setupExternalNativesDirs, type: Download) {
+    src 'https://raw.githubusercontent.com/badlogic/glfw/master/libglfwarm64.dylib'
+    dest 'extensions/gdx-lwjgl3-glfw-awt-macos/res/macosarm64/libglfwarm64.dylib'
+    onlyIfModified true
+    useETag "all"
+}
+
+task fetchExternalNatives(dependsOn: [ fetchAngleNativesZIP, fetchGlfwAWT, fetchGlfwAWTARM64 ] , type: Copy) {
+    from zipTree("build/gdx-angle-natives.zip")
+    into "./extensions/gdx-lwjgl3-angle/res"
+    outputs.upToDateWhen { false }
+}
+
+task fetchGdxNativesZIP(dependsOn: fetchExternalNatives, type: Download) {
+    src "https://libgdx-nightlies.s3.eu-central-1.amazonaws.com/libgdx-nightlies/natives.zip"
+    dest "build/natives.zip"
+    onlyIfModified true
+    useETag "all"
+}
+
+task fetchNatives(dependsOn: fetchGdxNativesZIP, type: Copy) {
+    from zipTree("build/natives.zip")
+    into "."
+    outputs.upToDateWhen { false }
+}
+
+apply from: rootProject.file('publish.gradle')
+
+if(rootProject.file('override.gradle').exists())
+    apply from: rootProject.file('override.gradle')
+
+apply from: "gradle/dist.gradle"

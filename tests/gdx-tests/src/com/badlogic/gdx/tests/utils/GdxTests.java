@@ -78,6 +78,7 @@ import com.badlogic.gdx.tests.g3d.TextureRegion3DTest;
 import com.badlogic.gdx.tests.g3d.utils.DefaultTextureBinderTest;
 import com.badlogic.gdx.tests.gles2.HelloTriangle;
 import com.badlogic.gdx.tests.gles2.SimpleVertexShader;
+import com.badlogic.gdx.tests.gles2.VertexArrayTest;
 import com.badlogic.gdx.tests.gles3.InstancedRenderingTest;
 import com.badlogic.gdx.tests.gles3.PixelBufferObjectTest;
 import com.badlogic.gdx.tests.net.NetAPITest;
@@ -185,6 +186,7 @@ public class GdxTests {
 		MatrixJNITest.class,
 		MeshBuilderTest.class,
 		MeshShaderTest.class,
+		MeshWithCustomAttributesTest.class,
 		MipMapTest.class,
 		ModelTest.class,
 		ModelCacheTest.class,
@@ -251,6 +253,7 @@ public class GdxTests {
 		StagePerformanceTest.class,
 		StageTest.class,
 		SuperKoalio.class,
+		SystemCursorTest.class,
 		TableLayoutTest.class,
 		TableTest.class,
 		TangentialAccelerationTest.class,
@@ -286,6 +289,7 @@ public class GdxTests {
 		UtfFontTest.class,
 		VBOWithVAOPerformanceTest.class,
 		Vector2dTest.class,
+		VertexArrayTest.class,
 		VertexBufferObjectShaderTest.class,
 		VibratorTest.class,
 		ViewportTest1.class,

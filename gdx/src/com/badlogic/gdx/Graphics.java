@@ -59,7 +59,7 @@ public interface Graphics {
 	class DisplayMode {
 		/** the width in physical pixels **/
 		public final int width;
-		/** the height in physical pixles **/
+		/** the height in physical pixels **/
 		public final int height;
 		/** the refresh rate in Hertz **/
 		public final int refreshRate;
@@ -208,6 +208,9 @@ public interface Graphics {
 	 * this density value will be 1; on a 120 dpi screen it would be .75; etc.
 	 *
 	 * If the density could not be determined, this returns a default value of 1.
+	 *
+	 * Depending on the underlying platform implementation this might be a relatively expensive operation. Therefore it should not
+	 * be called continously on each frame.
 	 *
 	 * @return the Density Independent Pixel factor of the display. */
 	float getDensity ();
