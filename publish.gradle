@@ -17,7 +17,7 @@ configure([
 	])
 {
     apply plugin: 'maven-publish'
-    apply plugin: 'signing'
+    // apply plugin: 'signing'
 
     afterEvaluate { project ->
         publishing {
@@ -115,7 +115,7 @@ configure([
             }
         }
 
-        signing {
+        /* signing {
             useGpgCmd()
             sign publishing.publications.mavenJava
 
@@ -128,6 +128,6 @@ configure([
             tasks.withType(Sign) {
                 onlyIf { isReleaseBuild() }
             }
-        }
+        } */
     }
 }

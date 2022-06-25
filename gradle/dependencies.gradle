@@ -46,7 +46,7 @@ versions.spotless = "5.14.3"
 libraries.compileOnly = [:]
 
 libraries.lwjgl = [
-        "org.lwjgl.lwjgl:lwjgl:${versions.lwjgl}",        
+        "org.lwjgl.lwjgl:lwjgl:${versions.lwjgl}",
         "com.badlogicgames.jlayer:jlayer:${versions.jlayer}",
         "org.jcraft:jorbis:${versions.jorbis}"
 ]
@@ -146,5 +146,7 @@ testnatives.desktop = [
 ]
 
 gdxnatives.desktop = [
-        files("gdx/libs/gdx-natives.jar")
+        files("gdx/libs/gdx-natives.jar"),
+
+        "org.devcore:win-multitouch:1.1",
 ]
