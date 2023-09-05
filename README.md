@@ -1,11 +1,12 @@
 # About
 This fork of libgdx is designed for building cross platform applications (not games) which have a high requirement on battery lifetime and refresh rate.
 
-It has quite a few hard design changes compared to the original libgdx which require more attention while developing but reward you with a super fast UI response.
+It has a few hard design changes compared to the original libgdx which require more attention while developing but reward you with a super fast UI response.
 
 
 # Additions
 - Windows multitouch support
+- Asynchronous input processing
 
 # Changes
 

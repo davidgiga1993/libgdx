@@ -22,7 +22,7 @@ buildscript {
 	}
 	dependencies {
 		classpath "com.diffplug.spotless:spotless-plugin-gradle:${versions.spotless}"
-		classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:2.3.1"
+		classpath "com.badlogicgames.gdx:gdx-jnigen-gradle:2.4.1"
 	}
 }
 
@@ -87,6 +87,7 @@ allprojects {
 	}
 	tasks.withType(Javadoc) {
 		options.encoding = 'UTF-8'
+		options.addBooleanOption('use', true);
 	}
 	tasks.withType(Test) {
 		systemProperty 'file.encoding', 'UTF-8'
@@ -103,11 +104,26 @@ allprojects {
 			options.addStringOption("-release", "8");
 		}
 	}
+
+	apply plugin: "com.diffplug.spotless"
+
+	spotless {
+		lineEndings 'UNIX'
+
+		java {
+			target '**/*.java'
+			removeUnusedImports()
+			eclipse().configFile new File(rootProject.projectDir.absolutePath, 'eclipse-formatter.xml')
+		}
+		groovyGradle {
+			target '*.gradle'
+			greclipse().configFile new File(rootProject.projectDir.absolutePath, 'eclipse-formatter.xml')
+		}
+	}
 }
 
-configure(subprojects - project(":tests:gdx-tests-android")) {
+configure(subprojects - project(":tests:gdx-tests-android") - project(":backends:gdx-backend-android")) {
 	apply plugin: "java-library"
-	apply plugin: "com.diffplug.spotless"
 
 	compileJava {
 		options.fork = true
@@ -117,19 +133,6 @@ configure(subprojects - project(":tests:gdx-tests-android")) {
 	java {
 		withJavadocJar()
 		withSourcesJar()
-	}
-
-	spotless {
-		lineEndings 'UNIX'
-
-		java {
-			removeUnusedImports()
-			eclipse().configFile new File(rootProject.projectDir.absolutePath, 'eclipse-formatter.xml')
-		}
-		groovyGradle {
-			target '*.gradle'
-			greclipse().configFile new File(rootProject.projectDir.absolutePath, 'eclipse-formatter.xml')
-		}
 	}
 }
 
@@ -206,7 +209,11 @@ task fetchGlfwAWTARM64(dependsOn: setupExternalNativesDirs, type: Download) {
 	useETag "all"
 }
 
-task fetchExternalNatives(dependsOn: [fetchAngleNativesZIP, fetchGlfwAWT, fetchGlfwAWTARM64], type: Copy) {
+task fetchExternalNatives(dependsOn: [
+	fetchAngleNativesZIP,
+	fetchGlfwAWT,
+	fetchGlfwAWTARM64
+] , type: Copy) {
 	from zipTree("build/gdx-angle-natives.zip")
 	into "./extensions/gdx-lwjgl3-angle/res"
 	outputs.upToDateWhen { false }
@@ -227,7 +234,7 @@ task fetchNatives(dependsOn: fetchGdxNativesZIP, type: Copy) {
 
 apply from: rootProject.file('publish.gradle')
 
-if (rootProject.file('override.gradle').exists())
+if(rootProject.file('override.gradle').exists())
 	apply from: rootProject.file('override.gradle')
 
 apply from: "gradle/dist.gradle"
