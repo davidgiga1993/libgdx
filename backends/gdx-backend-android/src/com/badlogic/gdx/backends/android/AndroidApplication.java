@@ -16,12 +16,10 @@
 
 package com.badlogic.gdx.backends.android;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
@@ -60,6 +58,8 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	protected boolean useImmersiveMode = false;
 	private int wasFocusChanged = -1;
 	private boolean isWaitingForAudio = false;
+
+	protected boolean renderUnderCutout = false;
 
 	/** This method has to be called in the {@link Activity#onCreate(Bundle)} method. It sets up all the things necessary to get
 	 * input, render via OpenGL and so on. Uses a default {@link AndroidApplicationConfiguration}.
@@ -124,6 +124,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		this.handler = new Handler();
 		this.useImmersiveMode = config.useImmersiveMode;
 		this.clipboard = new AndroidClipboard(this);
+		this.renderUnderCutout = config.renderUnderCutout;
 
 		// Add a specialized audio lifecycle listener
 		addLifecycleListener(new LifecycleListener() {
@@ -164,13 +165,15 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 
 		createWakeLock(config.useWakelock);
 		useImmersiveMode(this.useImmersiveMode);
-		if (this.useImmersiveMode && getVersion() >= Build.VERSION_CODES.KITKAT) {
+		if (this.useImmersiveMode) {
 			AndroidVisibilityListener vlistener = new AndroidVisibilityListener();
 			vlistener.createListener(this);
 		}
 
 		// detect an already connected bluetooth keyboardAvailable
 		if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS) input.setKeyboardAvailable(true);
+
+		setLayoutInDisplayCutoutMode(this.renderUnderCutout);
 	}
 
 	protected FrameLayout.LayoutParams createLayoutParams () {
@@ -183,6 +186,14 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	protected void createWakeLock (boolean use) {
 		if (use) {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.P)
+	private void setLayoutInDisplayCutoutMode (boolean render) {
+		if (render && getVersion() >= Build.VERSION_CODES.P) {
+			WindowManager.LayoutParams lp = getWindow().getAttributes();
+			lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
 		}
 	}
 
@@ -201,10 +212,9 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		}
 	}
 
-	@TargetApi(19)
 	@Override
 	public void useImmersiveMode (boolean use) {
-		if (!use || getVersion() < Build.VERSION_CODES.KITKAT) return;
+		if (!use) return;
 
 		View view = getWindow().getDecorView();
 		int code = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -481,7 +491,10 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 
 	@Override
 	public AndroidAudio createAudio (Context context, AndroidApplicationConfiguration config) {
-		return new DefaultAndroidAudio(context, config);
+		if (!config.disableAudio)
+			return new DefaultAndroidAudio(context, config);
+		else
+			return new DisabledAndroidAudio();
 	}
 
 	@Override

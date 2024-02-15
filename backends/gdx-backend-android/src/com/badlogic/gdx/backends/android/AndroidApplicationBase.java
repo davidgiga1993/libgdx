@@ -35,7 +35,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
  * @author davebaol */
 public interface AndroidApplicationBase extends Application {
 
-	int MINIMUM_SDK = 14;
+	int MINIMUM_SDK = 19;
 
 	/** The application or activity context
 	 * 

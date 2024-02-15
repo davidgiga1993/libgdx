@@ -18,15 +18,8 @@ Therefore you need to make sure your application can properly handle inputs from
 
 It is now also possible to change the input processing implementation from within your application - no need to rebuild libgdx.
 
-# Fixes
-## Android 6.0 
-A bug in proguard and android 6.0 causes crashes in code which is actually stable. This rare crash condition has been fixed.
 
+### Contributing to the Codebase
+libGDX benefits greatly from contributions made by our dedicated developer community. We appreciate any assistance in making libGDX even better. Check out the [CONTRIBUTING.md](https://github.com/libgdx/libgdx/blob/master/.github/CONTRIBUTING.md) file for details on how to contribute. Note that contributing involves working directly with libGDX's source code, a process that regular users do not typically undertake. Refer to the [Working with the Source](https://libgdx.com/dev/from-source/) article for guidance.
 
-## Android Multitouch 
-In libgdx are a couple of bugs in the input processing for android which causes three finger tapps not to be handled correctly.
-This has been fixed in this fork.
-
-# Removed
-The following things have been removed to make the framework a bit lighter and easier to maintain:
-- Android live wallpaper 
+You can also support our infrastructure (build server, web server, test devices) by contributing financially through our [Patreon](https://patreon.com/libgdx)!
