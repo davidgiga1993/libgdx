@@ -634,7 +634,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
      * <p>
      * See {@link Lwjgl3ApplicationConfiguration#enableGLDebugOutput(boolean, PrintStream)}
      */
-	 * <p>
     public static boolean setGLDebugMessageControl(GLDebugMessageSeverity severity, boolean enabled) {
         GLCapabilities caps = GL.getCapabilities();
         final int GL_DONT_CARE = 0x1100; // not defined anywhere yet
