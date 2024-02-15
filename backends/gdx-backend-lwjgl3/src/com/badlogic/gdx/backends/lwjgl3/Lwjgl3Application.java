@@ -462,6 +462,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	void createWindow (Lwjgl3Window window, Lwjgl3ApplicationConfiguration config, long sharedContext) {
+		setupWindowHints(config);
 		long windowHandle = createGlfwWindow(config, sharedContext);
 		window.create(windowHandle);
 		window.setVisible(config.initialVisible);
@@ -474,7 +475,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		}
 	}
 
-	static long createGlfwWindow (Lwjgl3ApplicationConfiguration config, long sharedContextWindow) {
+	protected void setupWindowHints(Lwjgl3ApplicationConfiguration config){
 		GLFW.glfwDefaultWindowHints();
 		GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
 		GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, config.windowResizable ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
@@ -490,8 +491,8 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, config.samples);
 
 		if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL30
-			|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL31
-			|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL32) {
+				|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL31
+				|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL32) {
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, config.gles30ContextMajorVersion);
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, config.gles30ContextMinorVersion);
 			if (SharedLibraryLoader.isMac) {
@@ -517,9 +518,10 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		if (config.debug) {
 			GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
 		}
+	}
 
-		long windowHandle = 0;
-
+	protected long createGlfwWindow (Lwjgl3ApplicationConfiguration config, long sharedContextWindow) {
+		long windowHandle;
 		if (config.fullscreenMode != null) {
 			GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, config.fullscreenMode.refreshRate);
 			windowHandle = GLFW.glfwCreateWindow(config.fullscreenMode.width, config.fullscreenMode.height, config.title,
