@@ -49,10 +49,6 @@ import com.badlogic.gdx.tests.extensions.FreeTypeMetricsTest;
 import com.badlogic.gdx.tests.extensions.FreeTypePackTest;
 import com.badlogic.gdx.tests.extensions.FreeTypeTest;
 import com.badlogic.gdx.tests.extensions.InternationalFontsTest;
-import com.badlogic.gdx.tests.gles3.NonPowerOfTwoTest;
-import com.badlogic.gdx.tests.gles3.UniformBufferObjectsTest;
-import com.badlogic.gdx.tests.math.CollisionPlaygroundTest;
-import com.badlogic.gdx.tests.math.OctreeTest;
 import com.badlogic.gdx.tests.g3d.Animation3DTest;
 import com.badlogic.gdx.tests.g3d.AnisotropyTest;
 import com.badlogic.gdx.tests.g3d.Basic3DSceneTest;
@@ -74,18 +70,23 @@ import com.badlogic.gdx.tests.g3d.PolarAccelerationTest;
 import com.badlogic.gdx.tests.g3d.ShaderCollectionTest;
 import com.badlogic.gdx.tests.g3d.ShaderTest;
 import com.badlogic.gdx.tests.g3d.ShadowMappingTest;
+import com.badlogic.gdx.tests.g3d.ShadowMappingTextureTest;
 import com.badlogic.gdx.tests.g3d.SkeletonTest;
 import com.badlogic.gdx.tests.g3d.TangentialAccelerationTest;
 import com.badlogic.gdx.tests.g3d.TextureArrayTest;
 import com.badlogic.gdx.tests.g3d.TextureRegion3DTest;
 import com.badlogic.gdx.tests.g3d.utils.DefaultTextureBinderTest;
+import com.badlogic.gdx.tests.gles2.GlTexImage2D;
 import com.badlogic.gdx.tests.gles2.HelloTriangle;
 import com.badlogic.gdx.tests.gles2.SimpleVertexShader;
 import com.badlogic.gdx.tests.gles2.VertexArrayTest;
 import com.badlogic.gdx.tests.gles3.GL30Texture3DTest;
 import com.badlogic.gdx.tests.gles3.InstancedRenderingTest;
 import com.badlogic.gdx.tests.gles3.ModelInstancedRenderingTest;
+import com.badlogic.gdx.tests.gles3.NonPowerOfTwoTest;
 import com.badlogic.gdx.tests.gles3.PixelBufferObjectTest;
+import com.badlogic.gdx.tests.gles3.UniformBufferObjectsTest;
+import com.badlogic.gdx.tests.gles31.GL31FrameBufferMultisampleMRTTest;
 import com.badlogic.gdx.tests.gles31.GL31FrameBufferMultisampleTest;
 import com.badlogic.gdx.tests.gles31.GL31IndirectDrawingIndexedTest;
 import com.badlogic.gdx.tests.gles31.GL31IndirectDrawingNonIndexedTest;
@@ -94,6 +95,8 @@ import com.badlogic.gdx.tests.gles32.GL32AdvancedBlendingTest;
 import com.badlogic.gdx.tests.gles32.GL32DebugControlTest;
 import com.badlogic.gdx.tests.gles32.GL32MultipleRenderTargetsBlendingTest;
 import com.badlogic.gdx.tests.gles32.GL32OffsetElementsTest;
+import com.badlogic.gdx.tests.math.CollisionPlaygroundTest;
+import com.badlogic.gdx.tests.math.OctreeTest;
 import com.badlogic.gdx.tests.math.collision.OrientedBoundingBoxTest;
 import com.badlogic.gdx.tests.net.NetAPITest;
 import com.badlogic.gdx.tests.superkoalio.SuperKoalio;
@@ -174,12 +177,14 @@ public class GdxTests {
 		GLES30Test.class,
 		GL31IndirectDrawingIndexedTest.class,
 		GL31IndirectDrawingNonIndexedTest.class,
+		GL31FrameBufferMultisampleMRTTest.class,
 		GL31FrameBufferMultisampleTest.class,
 		GL31ProgramIntrospectionTest.class,
 		GL32AdvancedBlendingTest.class,
 		GL32DebugControlTest.class,
 		GL32MultipleRenderTargetsBlendingTest.class,
 		GL32OffsetElementsTest.class,
+		GlTexImage2D.class,
 		GLProfilerErrorTest.class,
 		GroupCullingTest.class,
 		GroupFadeTest.class,
@@ -226,6 +231,7 @@ public class GdxTests {
 		NonPowerOfTwoTest.class,
 		OctreeTest.class,
 		OnscreenKeyboardTest.class,
+		NativeInputTest.class,
 		OrientedBoundingBoxTest.class,
 		PathTest.class,
 		ParallaxTest.class,
@@ -262,6 +268,7 @@ public class GdxTests {
 		ShaderMultitextureTest.class,
 		ShaderTest.class,
 		ShadowMappingTest.class,
+		ShadowMappingTextureTest.class,
 		ShapeRendererTest.class,
 		ShapeRendererAlphaTest.class,
 		SimpleAnimationTest.class,
@@ -273,6 +280,7 @@ public class GdxTests {
 		SortedSpriteTest.class,
 		SoundTest.class,
 		SpriteBatchRotationTest.class,
+		SpriteBatchPerformanceTest.class,
 		SpriteBatchShaderTest.class,
 		SpriteBatchTest.class,
 		SpriteCacheOffsetTest.class,
@@ -303,13 +311,20 @@ public class GdxTests {
 		TiledMapAnimationLoadingTest.class,
 		TiledMapAssetManagerTest.class,
 		TiledMapGroupLayerTest.class,
+		TiledMapGroupLayerWithImagelayerTest.class,
 		TiledMapAtlasAssetManagerTest.class,
 		TiledMapDirectLoaderTest.class,
+		TiledMapImageLayerRepeatTest.class,
 		TiledMapModifiedExternalTilesetTest.class,
 		TiledMapObjectLoadingTest.class,
 		TiledMapObjectPropertyTest.class,
 		TiledMapBench.class,
 		TiledMapLayerOffsetTest.class,
+		TiledMapLayerTintOpacityTest.class,
+		TiledMapPropertiesTest.class,
+		TiledMapJsonAtlasAssetManagerTest.class,
+		TiledMapJsonFormatTest.class,
+		TiledMapJsonObjectLoadingTest.class,
 		TimerTest.class,
 		TimeUtilsTest.class,
 		TouchpadTest.class,

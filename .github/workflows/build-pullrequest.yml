@@ -9,7 +9,7 @@ permissions:
 jobs:
   build-java:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,6 +24,12 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+
+      - name: Check MetalANGLE generation
+        run: |
+          ./gradlew :backends:gdx-backend-robovm-metalangle:generate
+          ./gradlew :backends:gdx-backend-robovm-metalangle:spotlessApply
+          if [[ `git status --porcelain` ]]; then echo "::error The MetalANGLE backend is missing changes, please run \`./gradlew :backends:gdx-backend-robovm-metalangle:generate\`"; exit 1; fi
 
       - name: Build & test Java code
         run: |

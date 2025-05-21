@@ -20,20 +20,38 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration.GLEmulation;
 import com.badlogic.gdx.backends.lwjgl3.audio.Lwjgl3Audio;
 import com.badlogic.gdx.backends.lwjgl3.audio.OpenALLwjgl3Audio;
-import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
-import com.badlogic.gdx.math.GridPoint2;
+
 import com.badlogic.gdx.utils.*;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.AMDDebugOutput;
+import org.lwjgl.opengl.ARBDebugOutput;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL43;
+import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.GLUtil;
+import org.lwjgl.opengl.KHRDebug;
 import org.lwjgl.system.Callback;
-import org.lwjgl.system.Configuration;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.lang.reflect.Method;
-import java.nio.IntBuffer;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Audio;
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.LifecycleListener;
+import com.badlogic.gdx.Net;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio;
+import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Clipboard;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	public static LwjglWinMultitouch multitouchInput;
@@ -59,17 +77,17 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 
 	static void initializeGlfw () {
 		if (errorCallback == null) {
-			if (SharedLibraryLoader.isMac) loadGlfwAwtMacos();
 			Lwjgl3NativesLoader.load();
 			errorCallback = GLFWErrorCallback.createPrint(Lwjgl3ApplicationConfiguration.errorStream);
 			GLFW.glfwSetErrorCallback(errorCallback);
-			if (SharedLibraryLoader.isMac) GLFW.glfwInitHint(GLFW.GLFW_ANGLE_PLATFORM_TYPE, GLFW.GLFW_ANGLE_PLATFORM_TYPE_METAL);
+			if (SharedLibraryLoader.os == Os.MacOsX)
+				GLFW.glfwInitHint(GLFW.GLFW_ANGLE_PLATFORM_TYPE, GLFW.GLFW_ANGLE_PLATFORM_TYPE_METAL);
 			GLFW.glfwInitHint(GLFW.GLFW_JOYSTICK_HAT_BUTTONS, GLFW.GLFW_FALSE);
 			if (!GLFW.glfwInit()) {
 				throw new GdxRuntimeException("Unable to initialize GLFW");
 			}
 		}
-		if (multitouchInput == null && SharedLibraryLoader.isWindows) {
+		if (multitouchInput == null && SharedLibraryLoader.os == Os.windows) {
 			try {
 				multitouchInput = new LwjglWinMultitouch();
 			} catch (Throwable e) {
@@ -99,20 +117,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 			return;
 		} catch (Throwable t) {
 			throw new GdxRuntimeException("Couldn't load ANGLE.", t);
-		}
-	}
-
-	static void loadGlfwAwtMacos () {
-		try {
-			Class loader = Class.forName("com.badlogic.gdx.backends.lwjgl3.awt.GlfwAWTLoader");
-			Method load = loader.getMethod("load");
-			File sharedLib = (File)load.invoke(loader);
-			Configuration.GLFW_LIBRARY_NAME.set(sharedLib.getAbsolutePath());
-			Configuration.GLFW_CHECK_THREAD0.set(false);
-		} catch (ClassNotFoundException t) {
-			return;
-		} catch (Throwable t) {
-			throw new GdxRuntimeException("Couldn't load GLFW AWT for macOS.", t);
 		}
 	}
 
@@ -172,8 +176,10 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 			closedWindows.clear();
 			int targetFramerate = -2;
 			for (Lwjgl3Window window : windows) {
-				window.makeCurrent();
-				currentWindow = window;
+				if (currentWindow != window) {
+					window.makeCurrent();
+					currentWindow = window;
+				}
 				if (targetFramerate == -2) targetFramerate = window.getConfig().foregroundFPS;
 				synchronized (lifecycleListeners) {
 					haveWindowsRendered |= window.update();
@@ -417,7 +423,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	/** Creates a new {@link Lwjgl3Window} using the provided listener and {@link Lwjgl3WindowConfiguration}.
-	 * <p>
+	 *
 	 * This function only just instantiates a {@link Lwjgl3Window} and returns immediately. The actual window creation is postponed
 	 * with {@link Application#postRunnable(Runnable)} until after all existing windows are updated. */
 	public Lwjgl3Window newWindow (ApplicationListener listener, Lwjgl3WindowConfiguration config) {
@@ -457,6 +463,12 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 			window.getGraphics().gl20.glClear(GL11.GL_COLOR_BUFFER_BIT);
 			GLFW.glfwSwapBuffers(windowHandle);
 		}
+
+		if (currentWindow != null) {
+			// the call above to createGlfwWindow switches the OpenGL context to the newly created window,
+			// ensure that the invariant "currentWindow is the window with the current active OpenGL context" holds
+			currentWindow.makeCurrent();
+		}
 	}
 
 	protected void setupWindowHints (Lwjgl3ApplicationConfiguration config) {
@@ -479,7 +491,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 			|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL32) {
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, config.gles30ContextMajorVersion);
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, config.gles30ContextMinorVersion);
-			if (SharedLibraryLoader.isMac) {
+			if (SharedLibraryLoader.os == Os.MacOsX) {
 				// hints mandatory on OS X for GL 3.2+ context creation, but fail on Windows if the
 				// WGL_ARB_create_context extension is not available
 				// see: http://www.glfw.org/docs/latest/compat.html
@@ -511,9 +523,24 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 			GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, config.fullscreenMode.refreshRate);
 			windowHandle = GLFW.glfwCreateWindow(config.fullscreenMode.width, config.fullscreenMode.height, config.title,
 				config.fullscreenMode.getMonitor(), sharedContextWindow);
+
+			// On Ubuntu >= 22.04 with Nvidia GPU drivers and X11 display server there's a bug with EGL Context API
+			// If the windows creation has failed for this reason try to create it again with the native context
+			if (windowHandle == 0 && config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20) {
+				GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_NATIVE_CONTEXT_API);
+				windowHandle = GLFW.glfwCreateWindow(config.fullscreenMode.width, config.fullscreenMode.height, config.title,
+					config.fullscreenMode.getMonitor(), sharedContextWindow);
+			}
 		} else {
 			GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, config.windowDecorated ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
 			windowHandle = GLFW.glfwCreateWindow(config.windowWidth, config.windowHeight, config.title, 0, sharedContextWindow);
+
+			// On Ubuntu >= 22.04 with Nvidia GPU drivers and X11 display server there's a bug with EGL Context API
+			// If the windows creation has failed for this reason try to create it again with the native context
+			if (windowHandle == 0 && config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20) {
+				GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_NATIVE_CONTEXT_API);
+				windowHandle = GLFW.glfwCreateWindow(config.windowWidth, config.windowHeight, config.title, 0, sharedContextWindow);
+			}
 		}
 		if (windowHandle == 0) {
 			throw new GdxRuntimeException("Couldn't create window");
@@ -521,22 +548,24 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		Lwjgl3Window.setSizeLimits(windowHandle, config.windowMinWidth, config.windowMinHeight, config.windowMaxWidth,
 			config.windowMaxHeight);
 		if (config.fullscreenMode == null) {
-			if (config.windowX == -1 && config.windowY == -1) { // i.e., center the window
-				int windowWidth = Math.max(config.windowWidth, config.windowMinWidth);
-				int windowHeight = Math.max(config.windowHeight, config.windowMinHeight);
-				if (config.windowMaxWidth > -1) windowWidth = Math.min(windowWidth, config.windowMaxWidth);
-				if (config.windowMaxHeight > -1) windowHeight = Math.min(windowHeight, config.windowMaxHeight);
+			if (GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND) {
+				if (config.windowX == -1 && config.windowY == -1) { // i.e., center the window
+					int windowWidth = Math.max(config.windowWidth, config.windowMinWidth);
+					int windowHeight = Math.max(config.windowHeight, config.windowMinHeight);
+					if (config.windowMaxWidth > -1) windowWidth = Math.min(windowWidth, config.windowMaxWidth);
+					if (config.windowMaxHeight > -1) windowHeight = Math.min(windowHeight, config.windowMaxHeight);
 
-				long monitorHandle = GLFW.glfwGetPrimaryMonitor();
-				if (config.windowMaximized && config.maximizedMonitor != null) {
-					monitorHandle = config.maximizedMonitor.monitorHandle;
+					long monitorHandle = GLFW.glfwGetPrimaryMonitor();
+					if (config.windowMaximized && config.maximizedMonitor != null) {
+						monitorHandle = config.maximizedMonitor.monitorHandle;
+					}
+
+					GridPoint2 newPos = Lwjgl3ApplicationConfiguration.calculateCenteredWindowPosition(
+						Lwjgl3ApplicationConfiguration.toLwjgl3Monitor(monitorHandle), windowWidth, windowHeight);
+					GLFW.glfwSetWindowPos(windowHandle, newPos.x, newPos.y);
+				} else {
+					GLFW.glfwSetWindowPos(windowHandle, config.windowX, config.windowY);
 				}
-
-				GridPoint2 newPos = Lwjgl3ApplicationConfiguration.calculateCenteredWindowPosition(
-					Lwjgl3ApplicationConfiguration.toLwjgl3Monitor(monitorHandle), windowWidth, windowHeight);
-				GLFW.glfwSetWindowPos(windowHandle, newPos.x, newPos.y);
-			} else {
-				GLFW.glfwSetWindowPos(windowHandle, config.windowX, config.windowY);
 			}
 
 			if (config.windowMaximized) {
@@ -627,7 +656,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 
 	/** Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be
 	 * set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions).
-	 * <p>
+	 *
 	 * See {@link Lwjgl3ApplicationConfiguration#enableGLDebugOutput(boolean, PrintStream)} */
 	public static boolean setGLDebugMessageControl (GLDebugMessageSeverity severity, boolean enabled) {
 		GLCapabilities caps = GL.getCapabilities();

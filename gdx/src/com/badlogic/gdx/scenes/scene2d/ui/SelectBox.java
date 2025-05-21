@@ -53,7 +53,7 @@ import com.badlogic.gdx.utils.Pools;
  * {@link SelectBoxStyle#background}.
  * @author mzechner
  * @author Nathan Sweet */
-public class SelectBox<T> extends Widget implements Disableable {
+public class SelectBox<T> extends Widget implements Disableable, Styleable<SelectBox.SelectBoxStyle> {
 	static final Vector2 temp = new Vector2();
 
 	SelectBoxStyle style;
@@ -193,7 +193,7 @@ public class SelectBox<T> extends Widget implements Disableable {
 		} else
 			prefHeight = font.getCapHeight() - font.getDescent() * 2;
 
-		Pool<GlyphLayout> layoutPool = Pools.get(GlyphLayout.class);
+		Pool<GlyphLayout> layoutPool = Pools.get(GlyphLayout::new);
 		GlyphLayout layout = layoutPool.obtain();
 		if (selectedPrefWidth) {
 			prefWidth = 0;
@@ -327,7 +327,7 @@ public class SelectBox<T> extends Widget implements Disableable {
 	/** Returns the pref width of the select box if the widest item was selected, for use when
 	 * {@link #setSelectedPrefWidth(boolean)} is true. */
 	public float getMaxSelectedPrefWidth () {
-		Pool<GlyphLayout> layoutPool = Pools.get(GlyphLayout.class);
+		Pool<GlyphLayout> layoutPool = Pools.get(GlyphLayout::new);
 		GlyphLayout layout = layoutPool.obtain();
 		float width = 0;
 		for (int i = 0; i < items.size; i++) {
@@ -532,11 +532,18 @@ public class SelectBox<T> extends Widget implements Disableable {
 				setY(stagePosition.y - height);
 			else
 				setY(stagePosition.y + selectBox.getHeight());
-			setX(stagePosition.x);
+
 			setHeight(height);
 			validate();
 			float width = Math.max(getPrefWidth(), selectBox.getWidth());
 			setWidth(width);
+
+			float x = stagePosition.x;
+			if (x + width > stage.getWidth()) {
+				x -= getWidth() - selectBox.getWidth() - 1;
+				if (x < 0) x = 0;
+			}
+			setX(x);
 
 			validate();
 			scrollTo(0, list.getHeight() - selectBox.getSelectedIndex() * itemHeight - itemHeight / 2, 0, 0, true, true);

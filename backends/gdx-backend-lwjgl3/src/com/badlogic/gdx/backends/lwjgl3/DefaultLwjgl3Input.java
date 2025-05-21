@@ -16,6 +16,7 @@
 
 package com.badlogic.gdx.backends.lwjgl3;
 
+import com.badlogic.gdx.input.NativeInputConfiguration;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
@@ -460,8 +461,9 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 		case GLFW.GLFW_KEY_GRAVE_ACCENT:
 			return Input.Keys.GRAVE;
 		case GLFW.GLFW_KEY_WORLD_1:
+			return Input.Keys.WORLD_1;
 		case GLFW.GLFW_KEY_WORLD_2:
-			return Input.Keys.UNKNOWN;
+			return Input.Keys.WORLD_2;
 		case GLFW.GLFW_KEY_ESCAPE:
 			return Input.Keys.ESCAPE;
 		case GLFW.GLFW_KEY_ENTER:
@@ -656,6 +658,21 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 
 	@Override
 	public void setOnscreenKeyboardVisible (boolean visible, OnscreenKeyboardType type) {
+	}
+
+	@Override
+	public void openTextInputField (NativeInputConfiguration configuration) {
+
+	}
+
+	@Override
+	public void closeTextInputField (boolean sendReturn) {
+
+	}
+
+	@Override
+	public void setKeyboardHeightObserver (KeyboardHeightObserver observer) {
+
 	}
 
 	@Override

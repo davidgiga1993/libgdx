@@ -31,6 +31,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.backends.android.keyboardheight.AndroidXKeyboardHeightProvider;
+import com.badlogic.gdx.backends.android.keyboardheight.KeyboardHeightProvider;
+import com.badlogic.gdx.backends.android.keyboardheight.StandardKeyboardHeightProvider;
 import com.badlogic.gdx.backends.android.surfaceview.FillResolutionStrategy;
 import com.badlogic.gdx.utils.*;
 
@@ -52,14 +55,14 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	protected boolean firstResume = true;
 	protected final Array<Runnable> runnables = new Array<Runnable>();
 	protected final Array<Runnable> executedRunnables = new Array<Runnable>();
-	protected final SnapshotArray<LifecycleListener> lifecycleListeners = new SnapshotArray<LifecycleListener>(
-		LifecycleListener.class);
+	protected final SnapshotArray<LifecycleListener> lifecycleListeners = new SnapshotArray<>(LifecycleListener[]::new);
 	private final Array<AndroidEventListener> androidEventListeners = new Array<AndroidEventListener>();
 	protected int logLevel = LOG_INFO;
 	protected ApplicationLogger applicationLogger;
 	protected boolean useImmersiveMode = false;
 	private int wasFocusChanged = -1;
 	private boolean isWaitingForAudio = false;
+	private KeyboardHeightProvider keyboardHeightProvider;
 
 	protected boolean renderUnderCutout = false;
 
@@ -176,6 +179,14 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS) input.setKeyboardAvailable(true);
 
 		setLayoutInDisplayCutoutMode(this.renderUnderCutout);
+
+		// As per the docs, it might work unreliable < 23 https://developer.android.com/jetpack/androidx/releases/core#1.5.0-alpha02
+		// So, I guess since 23 is pretty rare we can use the old API for the users
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			keyboardHeightProvider = new AndroidXKeyboardHeightProvider(this);
+		} else {
+			keyboardHeightProvider = new StandardKeyboardHeightProvider(this);
+		}
 	}
 
 	protected FrameLayout.LayoutParams createLayoutParams () {
@@ -250,6 +261,7 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 		graphics.onPauseGLSurfaceView();
 
 		super.onPause();
+		keyboardHeightProvider.setKeyboardHeightObserver(null);
 	}
 
 	@Override
@@ -278,10 +290,18 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 			this.isWaitingForAudio = false;
 		}
 		super.onResume();
+		keyboardHeightProvider.setKeyboardHeightObserver((DefaultAndroidInput)Gdx.input);
+		((AndroidGraphics)getGraphics()).getView().post(new Runnable() {
+			@Override
+			public void run () {
+				keyboardHeightProvider.start();
+			}
+		});
 	}
 
 	@Override
 	protected void onDestroy () {
+		keyboardHeightProvider.close();
 		super.onDestroy();
 	}
 
@@ -507,5 +527,9 @@ public class AndroidApplication extends Activity implements AndroidApplicationBa
 	protected AndroidFiles createFiles () {
 		this.getFilesDir(); // workaround for Android bug #10515463
 		return new DefaultAndroidFiles(this.getAssets(), this, true);
+	}
+
+	public KeyboardHeightProvider getKeyboardHeightProvider () {
+		return keyboardHeightProvider;
 	}
 }
