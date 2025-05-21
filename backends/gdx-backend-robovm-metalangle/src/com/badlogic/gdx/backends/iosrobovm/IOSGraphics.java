@@ -135,6 +135,11 @@ public class IOSGraphics extends AbstractGraphics {
 				IOSGraphics.this.input.onTouch(touches);
 			}
 
+			@Method(selector = "scrollWheel:withEvent:")
+			public void scrollWheel (NSEvent event) {
+				IOSGraphics.this.input.onTouch(touches);
+			}
+
 			@Override
 			public void draw (CGRect rect) {
 				IOSGraphics.this.draw(this, rect);
