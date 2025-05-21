@@ -53,6 +53,10 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.IntBuffer;
+
 public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	public static LwjglWinMultitouch multitouchInput;
 
@@ -87,7 +91,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 				throw new GdxRuntimeException("Unable to initialize GLFW");
 			}
 		}
-		if (multitouchInput == null && SharedLibraryLoader.os == Os.windows) {
+		if (multitouchInput == null && SharedLibraryLoader.os == Os.Windows) {
 			try {
 				multitouchInput = new LwjglWinMultitouch();
 			} catch (Throwable e) {
@@ -435,7 +439,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 
 	private Lwjgl3Window createWindow (final Lwjgl3ApplicationConfiguration config, ApplicationListener listener,
 		final long sharedContext) {
-		final Lwjgl3Window window = new Lwjgl3Window(listener, config, this);
+		final Lwjgl3Window window = new Lwjgl3Window(listener, lifecycleListeners,config, this);
 		if (sharedContext == 0) {
 			// the main window is created immediately
 			createWindow(window, config, sharedContext);
