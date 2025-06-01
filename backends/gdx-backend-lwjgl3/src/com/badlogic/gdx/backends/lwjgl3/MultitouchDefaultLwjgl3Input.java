@@ -22,82 +22,80 @@ import com.badlogic.gdx.utils.Array;
 import org.devcore.win.Multitouch;
 import org.devcore.win.MultitouchProcessor;
 
-/**
- * Async input processing
- */
+/** Async input processing */
 public class MultitouchDefaultLwjgl3Input extends DefaultLwjgl3Input {
 
-    private LwjglWinMultitouch multitouchInput;
+	private LwjglWinMultitouch multitouchInput;
 
-    public MultitouchDefaultLwjgl3Input(Lwjgl3Window window, LwjglWinMultitouch multitouchInput) {
-        super(window);
-        this.multitouchInput = multitouchInput;
-        windowHandleChanged(window.getWindowHandle());
-    }
+	public MultitouchDefaultLwjgl3Input (Lwjgl3Window window, LwjglWinMultitouch multitouchInput) {
+		super(window);
+		this.multitouchInput = multitouchInput;
+		windowHandleChanged(window.getWindowHandle());
+	}
 
-    @Override
-    protected void registerLwjglTouchHandler() {
-        if (multitouchInput == null) {
-            super.registerLwjglTouchHandler();
-            return;
-        }
+	@Override
+	protected void registerLwjglTouchHandler () {
+		if (multitouchInput == null) {
+			super.registerLwjglTouchHandler();
+			return;
+		}
 
-        registerNativeTouchHandler();
-    }
+		registerNativeTouchHandler();
+	}
 
-    private void registerNativeTouchHandler() {
-        MultitouchProcessor processor = new MultitouchProcessor() {
-            private final Array<Integer> activePointers = new Array<>(10);
+	private void registerNativeTouchHandler () {
+		MultitouchProcessor processor = new MultitouchProcessor() {
+			private final Array<Integer> activePointers = new Array<>(10);
 
-            @Override
-            public void onTouch(int x, int y, int pointerId, int mode, int button) {
-                if (window.getConfig().hdpiMode == HdpiMode.Pixels) {
-                    float xScale = window.getGraphics().getBackBufferWidth() / (float) window.getGraphics().getLogicalWidth();
-                    float yScale = window.getGraphics().getBackBufferHeight() / (float) window.getGraphics().getLogicalHeight();
-                    x = (int) (x * xScale);
-                    y = (int) (y * yScale);
-                }
+			@Override
+			public void onTouch (int x, int y, int pointerId, int mode, int button) {
+				if (window.getConfig().hdpiMode == HdpiMode.Pixels) {
+					float xScale = window.getGraphics().getBackBufferWidth() / (float)window.getGraphics().getLogicalWidth();
+					float yScale = window.getGraphics().getBackBufferHeight() / (float)window.getGraphics().getLogicalHeight();
+					x = (int)(x * xScale);
+					y = (int)(y * yScale);
+				}
 
-                long time = System.nanoTime();
-                int pointerIndex = getPointerIndex(pointerId);
-                switch (mode) {
-                    case Multitouch.POINTER_DOWN:
-                        eventQueue.touchDown(x, y, pointerId, button, time);
-                        activePointers.add(pointerId);
-                        break;
-                    case Multitouch.POINTER_MOVE:
-                        if (pointerIndex != -1) {
-                            eventQueue.touchDragged(x, y, pointerId, time);
-                            return;
-                        }
-                        eventQueue.mouseMoved(x, y, time);
-                        return;
-                    case Multitouch.POINTER_UP:
-                        eventQueue.touchUp(x, y, pointerId, button, time);
-                        if (pointerIndex < 0 || pointerIndex >= activePointers.size) return;
-                        activePointers.removeIndex(pointerIndex);
-                        break;
-                }
-            }
+				long time = System.nanoTime();
+				int pointerIndex = getPointerIndex(pointerId);
+				switch (mode) {
+				case Multitouch.POINTER_DOWN:
+					eventQueue.touchDown(x, y, pointerId, button, time);
+					activePointers.add(pointerId);
+					break;
+				case Multitouch.POINTER_MOVE:
+					if (pointerIndex != -1) {
+						eventQueue.touchDragged(x, y, pointerId, time);
+						return;
+					}
+					eventQueue.mouseMoved(x, y, time);
+					return;
+				case Multitouch.POINTER_UP:
+					eventQueue.touchUp(x, y, pointerId, button, time);
+					if (pointerIndex < 0 || pointerIndex >= activePointers.size) return;
+					activePointers.removeIndex(pointerIndex);
+					break;
+				}
+			}
 
-            private int getPointerIndex(int pointer) {
-                for (int X = 0; X < activePointers.size; X++) {
-                    if (activePointers.get(X) == pointer) {
-                        return X;
-                    }
-                }
-                return -1;
-            }
-        };
+			private int getPointerIndex (int pointer) {
+				for (int X = 0; X < activePointers.size; X++) {
+					if (activePointers.get(X) == pointer) {
+						return X;
+					}
+				}
+				return -1;
+			}
+		};
 
-        try {
-            multitouchInput.addWindow(window, processor);
-        } catch (RuntimeException e) {
-            System.err.println("Could not register multitouch: " + e.getMessage());
-            // Fallback to lwjgl
-            multitouchInput.dispose();
-            multitouchInput = null;
-            registerLwjglTouchHandler();
-        }
-    }
+		try {
+			multitouchInput.addWindow(window, processor);
+		} catch (RuntimeException e) {
+			System.err.println("Could not register multitouch: " + e.getMessage());
+			// Fallback to lwjgl
+			multitouchInput.dispose();
+			multitouchInput = null;
+			registerLwjglTouchHandler();
+		}
+	}
 }
