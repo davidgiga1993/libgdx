@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,11 +27,13 @@ import org.lwjgl.glfw.GLFWScrollCallback;
 import com.badlogic.gdx.AbstractInput;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.InputProcessor;
 
 public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 	final Lwjgl3Window window;
-	protected InputProcessor inputProcessor;
+	private InputProcessor inputProcessor;
+	final InputEventQueue eventQueue = new InputEventQueue();
 
 	int mouseX, mouseY;
 	int mousePressed;
@@ -53,7 +55,7 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 			if ((codepoint & 0xff00) == 0xf700) return;
 			lastCharacter = (char)codepoint;
 			DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
-			inputProcessor.keyTyped((char)codepoint);
+			eventQueue.keyTyped((char)codepoint, System.nanoTime());
 		}
 	};
 
@@ -61,7 +63,7 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 		@Override
 		public void invoke (long window, double scrollX, double scrollY) {
 			DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
-			inputProcessor.scrolled(-(float)scrollX, -(float)scrollY);
+			eventQueue.scrolled(-(float)scrollX, -(float)scrollY, System.nanoTime());
 		}
 	};
 
@@ -88,9 +90,9 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 			DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
 			long time = System.nanoTime();
 			if (mousePressed > 0) {
-				inputProcessor.touchDragged(mouseX, mouseY, 0);
+				eventQueue.touchDragged(mouseX, mouseY, 0, time);
 			} else {
-				inputProcessor.mouseMoved(mouseX, mouseY);
+				eventQueue.mouseMoved(mouseX, mouseY, time);
 			}
 		}
 	};
@@ -107,11 +109,11 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 				justTouched = true;
 				justPressedButtons[gdxButton] = true;
 				DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
-				inputProcessor.touchDown(mouseX, mouseY, 0, gdxButton);
+				eventQueue.touchDown(mouseX, mouseY, 0, gdxButton, time);
 			} else {
 				mousePressed = Math.max(0, mousePressed - 1);
 				DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
-				inputProcessor.touchUp(mouseX, mouseY, 0, gdxButton);
+				eventQueue.touchUp(mouseX, mouseY, 0, gdxButton, time);
 			}
 		}
 
@@ -134,7 +136,7 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 		switch (action) {
 		case GLFW.GLFW_PRESS:
 			key = getGdxKeyCode(key);
-			inputProcessor.keyDown(key);
+			eventQueue.keyDown(key, System.nanoTime());
 			pressedKeyCount++;
 			keyJustPressed = true;
 			pressedKeys[key] = true;
@@ -149,12 +151,12 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 			pressedKeyCount--;
 			pressedKeys[key] = false;
 			DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
-			inputProcessor.keyUp(key);
+			eventQueue.keyUp(key, System.nanoTime());
 			break;
 		case GLFW.GLFW_REPEAT:
 			if (lastCharacter != 0) {
 				DefaultLwjgl3Input.this.window.getGraphics().requestRendering();
-				inputProcessor.keyTyped(lastCharacter);
+				eventQueue.keyTyped(lastCharacter, System.nanoTime());
 			}
 			break;
 		}
@@ -170,6 +172,7 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 		for (int i = 0; i < justPressedButtons.length; i++) {
 			justPressedButtons[i] = false;
 		}
+		eventQueue.drain(null);
 	}
 
 	@Override
@@ -188,6 +191,7 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 
 	@Override
 	public void update () {
+		eventQueue.drain(inputProcessor);
 	}
 
 	@Override
@@ -310,7 +314,7 @@ public class DefaultLwjgl3Input extends AbstractInput implements Lwjgl3Input {
 	@Override
 	public long getCurrentEventTime () {
 		// queue sets its event time for each event dequeued/processed
-		return 0;
+		return eventQueue.getCurrentEventTime();
 	}
 
 	@Override
