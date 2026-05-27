@@ -17,11 +17,13 @@
 apply plugin: "java"
 
 dependencies {
+	testImplementation libraries.junit
 	api project(":gdx")
 	api libraries.lwjgl3GLES
 }
 
 sourceSets.main.java.srcDirs = ["src"]
 sourceSets.main.resources.srcDirs = ["res"]
+sourceSets.test.java.srcDirs = ["test"]
 
 tasks.withType(Jar) { duplicatesStrategy = DuplicatesStrategy.INCLUDE }

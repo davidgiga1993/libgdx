@@ -35,14 +35,14 @@ public class ANGLELoader {
 	/** Holds the extracted library files to be deleted after the glfw initialization. This is currently only used on osx */
 	static private File[] loadedLibraries = new File[0];
 
-	/** Checks if the given directory is inside an osx app bundle
+	/** Checks if the given directory is inside an macOS app bundle
 	 *
-	 * @param directory Directory
+	 * @param path Current working directory
 	 * @return True if app bundle */
-	static boolean isAppBundlePath (File directory) {
+	static boolean isAppBundlePath (String path) {
 		// Finder uses "/" as working directory,
-		// there might be a chroot afterwards to the apps Contents directory
-		return directory.getAbsolutePath().equals("/.") || directory.getAbsolutePath().matches(".*/[^/]+\\.app/Contents/?.*");
+		// there might be a chroot afterward to the apps Contents directory
+		return path.equals("/.") ||path.endsWith(".app")|| path.matches(".*/[^/]+\\.app/.*");
 	}
 
 	public static void load () {
@@ -94,7 +94,7 @@ public class ANGLELoader {
 				// Therefore, if you want to use angle with an app bundle, be sure to include the dylibs
 				// manually since we won't extract them here.
 				File lastWorkingDir = new File(".");
-				if (isAppBundlePath(lastWorkingDir)) {
+				if (isAppBundlePath(lastWorkingDir.getAbsolutePath())) {
 					// Running inside an app bundle - do nothing
 					return;
 				}
