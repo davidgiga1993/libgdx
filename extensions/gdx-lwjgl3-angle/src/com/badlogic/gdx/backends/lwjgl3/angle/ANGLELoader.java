@@ -42,7 +42,7 @@ public class ANGLELoader {
 	static boolean isAppBundlePath (String path) {
 		// Finder uses "/" as working directory,
 		// there might be a chroot afterward to the apps Contents directory
-		return path.equals("/.") ||path.endsWith(".app")|| path.matches(".*/[^/]+\\.app/.*");
+		return path.equals("/.") || path.endsWith(".app") || path.matches(".*/[^/]+\\.app/.*");
 	}
 
 	public static void load () {
