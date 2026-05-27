@@ -156,7 +156,7 @@ public class Lwjgl3Graphics extends AbstractGraphics implements Disposable {
 
 	void update () {
 		long time = System.nanoTime();
-		if (lastFrameTime == -1) lastFrameTime = time;
+		if (lastFrameTime == -1 || lastFrameTime > time) lastFrameTime = time;
 		deltaTime = (time - lastFrameTime) / 1000000000.0f;
 		lastFrameTime = time;
 
