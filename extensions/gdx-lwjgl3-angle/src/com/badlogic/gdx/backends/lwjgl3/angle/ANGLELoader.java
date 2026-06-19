@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 public class ANGLELoader {
 	static public boolean isWindows = System.getProperty("os.name").contains("Windows");
@@ -35,14 +36,12 @@ public class ANGLELoader {
 	/** Holds the extracted library files to be deleted after the glfw initialization. This is currently only used on osx */
 	static private File[] loadedLibraries = new File[0];
 
-	/** Checks if the given directory is inside an macOS app bundle
+	/** Checks if the current jar/code location is inside an macOS app bundle
 	 *
-	 * @param path Current working directory
 	 * @return True if app bundle */
-	static boolean isAppBundlePath (String path) {
-		// Finder uses "/" as working directory,
-		// there might be a chroot afterward to the apps Contents directory
-		return path.equals("/.") || path.endsWith(".app") || path.matches(".*/[^/]+\\.app/.*");
+	static boolean isAppBundlePath () {
+		URL jarSource = ANGLELoader.class.getProtectionDomain().getCodeSource().getLocation();
+		return jarSource.getPath().matches(".*/[^/]+\\.app/.*");
 	}
 
 	public static void load () {
@@ -93,12 +92,12 @@ public class ANGLELoader {
 				// into the app bundle breaks the signature and osx won't run the app anymore at all.
 				// Therefore, if you want to use angle with an app bundle, be sure to include the dylibs
 				// manually since we won't extract them here.
-				File lastWorkingDir = new File(".");
-				if (isAppBundlePath(lastWorkingDir.getAbsolutePath())) {
+				if (isAppBundlePath()) {
 					// Running inside an app bundle - do nothing
 					return;
 				}
 
+				File lastWorkingDir = new File(".");
 				loader.extractFileTo(eglSource, lastWorkingDir);
 				loader.extractFileTo(glesSource, lastWorkingDir);
 				loadedLibraries = new File[] {new File(lastWorkingDir, eglFileName), new File(lastWorkingDir, glesFileName),};
