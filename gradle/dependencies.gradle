@@ -158,6 +158,5 @@ testnatives.desktop = [
 
 gdxnatives.desktop = [
         files("gdx/libs/gdx-natives.jar"),
-
-        "org.devcore:win-multitouch:1.1",
+        "org.devcore:java-multitouch-native:1.0",
 ]
